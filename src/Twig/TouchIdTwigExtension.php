@@ -12,7 +12,7 @@ use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
 use WpConsulting\TouchIdBundle\Entity\WebAuthnCredential;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
 
-final class TouchIdExtension extends AbstractExtension implements GlobalsInterface
+final class TouchIdTwigExtension extends AbstractExtension implements GlobalsInterface
 {
     public function __construct(
         private readonly TouchIdManager $touchIdManager,

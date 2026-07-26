@@ -15,7 +15,7 @@ use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
 use WpConsulting\TouchIdBundle\Controller\TouchIdController;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
-use WpConsulting\TouchIdBundle\Twig\TouchIdExtension;
+use WpConsulting\TouchIdBundle\Twig\TouchIdTwigExtension;
 
 final class TouchIdExtension extends Extension implements PrependExtensionInterface
 {
@@ -56,8 +56,8 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
 
         $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class']);
 
-        if ($container->hasDefinition(TouchIdExtension::class)) {
-            $container->getDefinition(TouchIdExtension::class)
+        if ($container->hasDefinition(TouchIdTwigExtension::class)) {
+            $container->getDefinition(TouchIdTwigExtension::class)
                 ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
                 ->setArgument('$emailInputSelector', $config['email_input_selector'])
                 ->setArgument('$translationDomain', $config['translation_domain']);
