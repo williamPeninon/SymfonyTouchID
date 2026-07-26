@@ -34,7 +34,7 @@ final class TouchIdController
     ) {}
 
     #[Route('/webauthn/register/options', name: 'webauthn_register_options', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function registerOptions(Request $request): JsonResponse
     {
         $user = $this->requireTouchIdUser();
@@ -47,7 +47,7 @@ final class TouchIdController
     }
 
     #[Route('/webauthn/register/verify', name: 'webauthn_register_verify', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function registerVerify(Request $request): JsonResponse
     {
         $user = $this->requireTouchIdUser();
@@ -80,7 +80,7 @@ final class TouchIdController
     }
 
     #[Route('/webauthn/credentials/{id}', name: 'webauthn_credential_delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function deleteCredential(int $id): JsonResponse
     {
         $user = $this->requireTouchIdUser();
