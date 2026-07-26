@@ -16,8 +16,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
-use WpConsulting\TouchIdBundle\Repository\WebAuthnCredentialRepository;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
 
 #[AsController]
@@ -25,8 +23,6 @@ final class TouchIdController
 {
     public function __construct(
         private readonly TouchIdManager $touchIdManager,
-        private readonly WebAuthnCredentialRepository $credentialRepository,
-        private readonly TouchIdUserRepositoryInterface $userRepository,
         private readonly Security $security,
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -111,8 +107,8 @@ final class TouchIdController
         $email = \is_string($payload?->email ?? null) ? trim((string) $payload->email) : '';
 
         if ($email !== '') {
-            $user = $this->userRepository->findOneForTouchIdByEmail($email);
-            if (!$user || $this->credentialRepository->findByUser($user) === []) {
+            $user = $this->touchIdManager->findUserByUserName($email);
+            if (!$user || $this->touchIdManager->listCredentials($user) === []) {
                 return new JsonResponse([
                     'success' => false,
                     'message' => $this->trans('no_credential'),

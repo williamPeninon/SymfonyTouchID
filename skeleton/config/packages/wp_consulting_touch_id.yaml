@@ -1,9 +1,11 @@
 # config/packages/wp_consulting_touch_id.yaml
 wp_consulting_touch_id:
-    # REQUIRED — your User entity implementing TouchIdUserInterface
-    user_class: App\Entity\User
-    # REQUIRED — service id implementing TouchIdUserRepositoryInterface
-    user_repository: App\Repository\UserRepository
+    # REQUIRED — leave null until User implements TouchIdUserInterface
+    # (null keeps cache:clear / asset-map:compile working before wiring).
+    user_class: ~
+    # user_class: App\Entity\User
+    # Doctrine field used to look up the user at login (email / username / …)
+    user_identifier_field: email
     rp_name: 'My App'
     login_authenticator: form_login
     default_redirect_route: app_account

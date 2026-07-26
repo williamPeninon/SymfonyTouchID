@@ -59,8 +59,10 @@ WpConsulting\TouchIdBundle\TouchIdBundle::class => ['all' => true],
 ```yaml
 # config/packages/wp_consulting_touch_id.yaml
 wp_consulting_touch_id:
-    user_class: App\Entity\User                                          # obligatoire
-    user_repository: App\Repository\UserRepository                       # obligatoire
+    # Obligatoire une fois User prêt (laissez ~ pour compiler les assets avant) :
+    user_class: App\Entity\User
+    # Champ Doctrine pour retrouver l’utilisateur au login WebAuthn :
+    user_identifier_field: email
     rp_name: 'My App'
     login_authenticator: form_login
     default_redirect_route: app_account
@@ -70,6 +72,10 @@ wp_consulting_touch_id:
     # Si le champ email login n’est pas #username, adaptez :
     email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'
 ```
+
+> Si `user_class` est absent ou ne pointe pas vers une classe qui implémente `TouchIdUserInterface`, le bundle **ne câble pas** ses services : `asset-map:compile` et `cache:clear` restent possibles.
+>
+> Plus besoin de repository custom : le bundle utilise `EntityManagerInterface::getRepository(user_class)`.
 
 ### 4. Routes
 
@@ -111,24 +117,7 @@ class User implements UserInterface, TouchIdUserInterface
 }
 ```
 
-### 7. UserRepository
-
-```php
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-
-class UserRepository extends ServiceEntityRepository implements TouchIdUserRepositoryInterface
-{
-    public function findOneForTouchIdByEmail(string $email): ?TouchIdUserInterface
-    {
-        $user = $this->findOneBy(['email' => $email]);
-
-        return $user instanceof TouchIdUserInterface ? $user : null;
-    }
-}
-```
-
-### 8. Base de données
+### 7. Base de données
 
 ```bash
 php bin/console touch-id:install
@@ -138,7 +127,7 @@ php bin/console touch-id:install
 #   migration Flex : flex/wpconsulting/touch-id-bundle/1.4/migrations/ (adapter la FK user)
 ```
 
-### 9. Stimulus
+### 8. Stimulus
 
 ```json
 // assets/controllers.json
@@ -152,7 +141,7 @@ php bin/console touch-id:install
 }
 ```
 
-### 10. Twig — page login
+### 9. Twig — page login
 
 ```twig
 {% include '@TouchId/touch_id/_login_button.html.twig' %}
@@ -160,7 +149,7 @@ php bin/console touch-id:install
 
 Options utiles : `email_input`, `redirect_url`, `button_class`, `show_hint`, `show_divider`.
 
-### 11. Twig — page compte (enregistrement de la passkey)
+### 10. Twig — page compte (enregistrement de la passkey)
 
 ```twig
 {% include '@TouchId/touch_id/_manage.html.twig' with {
@@ -169,7 +158,7 @@ Options utiles : `email_input`, `redirect_url`, `button_class`, `show_hint`, `sh
 } %}
 ```
 
-### 12. CSS (hôte)
+### 11. CSS (hôte)
 
 Le bundle n’embarque pas de CSS. Styles à prévoir pour `.auth-webauthn-btn`, `.auth-webauthn-hint`, `.auth-divider` (ou passez vos classes via les options des partials).
 
@@ -181,15 +170,14 @@ Le bundle n’embarque pas de CSS. Styles à prévoir pour `.auth-webauthn-btn`,
 |---|---|---|
 | 1 | Endpoint Flex dans `composer.json` | — (une fois) |
 | 2 | `composer require` | — |
-| 3 | YAML `user_class` / `user_repository` / … | Fichier copié, **à remplir** |
+| 3 | YAML `user_class` / … | Fichier copié, **à remplir** |
 | 4 | Import routes | Oui (fichier copié) |
 | 5 | `access_control` `/webauthn/login` | Non |
 | 6 | `TouchIdUserInterface` sur User | Non |
-| 7 | `TouchIdUserRepositoryInterface` sur le repo | Non |
-| 8 | `touch-id:install` | Non |
-| 9 | `controllers.json` Stimulus | Non |
-| 10–11 | Includes Twig login + compte | Non |
-| 12 | CSS | Non |
+| 7 | `touch-id:install` | Non |
+| 8 | `controllers.json` Stimulus | Non |
+| 9–10 | Includes Twig login + compte | Non |
+| 11 | CSS | Non |
 
 ---
 

@@ -18,7 +18,8 @@
                     "",
                     "<bg=blue;fg=white> wpconsulting/touch-id-bundle </>",
                     "",
-                    "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class + user_repository).",
+                    "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class).",
+                    "  * Implement <comment>TouchIdUserInterface</> on your User entity.",
                     "  * Then: <comment>php bin/console touch-id:install</>",
                     ""
                 ]
@@ -27,8 +28,9 @@
                 "config/packages/wp_consulting_touch_id.yaml": {
                     "contents": [
                         "wp_consulting_touch_id:",
-                        "    user_class: App\\Entity\\User",
-                        "    user_repository: App\\Repository\\UserRepository",
+                        "    user_class: ~",
+                        "    # user_class: App\\Entity\\User",
+                        "    user_identifier_field: email",
                         "    rp_name: 'My App'",
                         "    login_authenticator: form_login",
                         "    default_redirect_route: app_account",

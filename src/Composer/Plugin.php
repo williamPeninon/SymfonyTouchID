@@ -153,8 +153,8 @@ final class Plugin implements PluginInterface, EventSubscriberInterface
         $io->write('');
         $io->write('  <bg=blue;fg=white> wpconsulting/touch-id-bundle </>');
         $io->write('');
-        $io->write('  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class + user_repository).');
-        $io->write('  * Implement <comment>TouchIdUserInterface</> on your User and <comment>TouchIdUserRepositoryInterface</> on the repo.');
+        $io->write('  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class).');
+        $io->write('  * Implement <comment>TouchIdUserInterface</> on your User entity.');
         $io->write('  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.');
         $io->write('  * Enable Stimulus controllers in <comment>assets/controllers.json</> (see README).');
         $io->write('  * Create the table: <comment>php bin/console touch-id:install</>');

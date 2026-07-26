@@ -24,8 +24,19 @@ class TouchIdManager
         private readonly EntityManagerInterface $em,
         private readonly RequestStack $requestStack,
         private readonly string $rpName,
+        private readonly string $userClass,
+        private readonly string $userIdentifierField = 'email',
         private readonly string $defaultCredentialName = 'Touch ID',
     ) {}
+
+    public function findUserByUserName(string $userName): ?TouchIdUserInterface
+    {
+        $user = $this->em->getRepository($this->userClass)->findOneBy([
+            $this->userIdentifierField => $userName,
+        ]);
+
+        return $user instanceof TouchIdUserInterface ? $user : null;
+    }
 
     public function createFactory(Request $request): WebAuthn
     {

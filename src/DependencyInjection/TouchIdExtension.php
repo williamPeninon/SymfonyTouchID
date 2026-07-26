@@ -12,7 +12,6 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
 use WpConsulting\TouchIdBundle\Controller\TouchIdController;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
 use WpConsulting\TouchIdBundle\Twig\TouchIdTwigExtension;
@@ -22,12 +21,12 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
-        $configured = !empty($config['user_class']) && !empty($config['user_repository']);
+        $configured = $this->isFullyConfigured($config);
 
         $container->setParameter('wp_consulting_touch_id.configured', $configured);
         $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class'] ?? null);
 
-        // Allow the host app to boot (assets:compile, cache:clear) before wiring User/repo.
+        // Allow the host app to boot (asset-map:compile, cache:clear) before User exists.
         if (!$configured) {
             return;
         }
@@ -38,13 +37,14 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $container->getDefinition(TouchIdManager::class)
             ->setPublic(true)
             ->setArgument('$rpName', $config['rp_name'])
+            ->setArgument('$userClass', $config['user_class'])
+            ->setArgument('$userIdentifierField', $config['user_identifier_field'])
             ->setArgument('$defaultCredentialName', $config['default_credential_name']);
 
         $container->setAlias('touch_id.manager', TouchIdManager::class)->setPublic(true);
 
         $controller = $container->getDefinition(TouchIdController::class);
         $controller
-            ->setArgument('$userRepository', new Reference($config['user_repository']))
             ->setArgument('$loginAuthenticator', $config['login_authenticator'])
             ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
             ->setArgument('$translationDomain', $config['translation_domain'])
@@ -56,15 +56,27 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             $controller->setArgument('$successHandler', null);
         }
 
-        $container->setAlias(TouchIdUserRepositoryInterface::class, $config['user_repository'])
-            ->setPublic(false);
-
         if ($container->hasDefinition(TouchIdTwigExtension::class)) {
             $container->getDefinition(TouchIdTwigExtension::class)
                 ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
                 ->setArgument('$emailInputSelector', $config['email_input_selector'])
                 ->setArgument('$translationDomain', $config['translation_domain']);
         }
+    }
+
+    /**
+     * Skeleton placeholders (App\…) must not wire services until the class exists.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function isFullyConfigured(array $config): bool
+    {
+        $userClass = $config['user_class'] ?? null;
+
+        return \is_string($userClass)
+            && $userClass !== ''
+            && class_exists($userClass)
+            && is_a($userClass, TouchIdUserInterface::class, true);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -85,7 +97,7 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             ],
         ];
 
-        if (!empty($config['user_class'])) {
+        if (!empty($config['user_class']) && class_exists($config['user_class'])) {
             $doctrineOrm['resolve_target_entities'] = [
                 TouchIdUserInterface::class => $config['user_class'],
             ];
