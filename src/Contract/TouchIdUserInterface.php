@@ -6,7 +6,7 @@ namespace WpConsulting\TouchIdBundle\Contract;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface TouchIdUserInterface extends UserInterface
+interface TouchIdUserInterface
 {
     public function getUserId(): mixed;
 
