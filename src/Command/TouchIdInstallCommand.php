@@ -16,7 +16,7 @@ use WpConsulting\TouchIdBundle\Entity\WebAuthnCredential;
 
 #[AsCommand(
     name: 'touch-id:install',
-    description: 'Create or update the web_authn_credential table (Doctrine schema for this entity only).',
+    description: 'Create the web_authn_credential table if it does not exist (safe: does not alter other tables).',
 )]
 final class TouchIdInstallCommand extends Command
 {
@@ -28,22 +28,24 @@ final class TouchIdInstallCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('dump-sql', null, InputOption::VALUE_NONE, 'Dump SQL instead of executing');
+        $this->addOption('dump-sql', null, InputOption::VALUE_NONE, 'Dump CREATE SQL instead of executing');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $metadata = [$this->entityManager->getClassMetadata(WebAuthnCredential::class)];
-        $schemaTool = new SchemaTool($this->entityManager);
+        $connection = $this->entityManager->getConnection();
+        $schemaManager = $connection->createSchemaManager();
 
-        $sql = $this->getUpdateSql($schemaTool, $metadata);
-
-        if ($sql === []) {
-            $io->success('Schema is already up to date for web_authn_credential.');
+        if ($schemaManager->tablesExist(['web_authn_credential'])) {
+            $io->success('Table web_authn_credential already exists.');
 
             return Command::SUCCESS;
         }
+
+        $metadata = [$this->entityManager->getClassMetadata(WebAuthnCredential::class)];
+        $schemaTool = new SchemaTool($this->entityManager);
+        $sql = $schemaTool->getCreateSchemaSql($metadata);
 
         if ($input->getOption('dump-sql')) {
             $io->writeln($sql);
@@ -51,8 +53,11 @@ final class TouchIdInstallCommand extends Command
             return Command::SUCCESS;
         }
 
-        $this->updateSchema($schemaTool, $metadata);
-        $io->success('web_authn_credential table created/updated.');
+        foreach ($sql as $query) {
+            $connection->executeStatement($query);
+        }
+
+        $io->success('Table web_authn_credential created.');
         $io->note([
             'Also ensure:',
             '1) config/packages/wp_consulting_touch_id.yaml (user_class + user_repository)',
@@ -63,37 +68,5 @@ final class TouchIdInstallCommand extends Command
         ]);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * @param list<object> $metadata
-     *
-     * @return list<string>
-     */
-    private function getUpdateSql(SchemaTool $schemaTool, array $metadata): array
-    {
-        try {
-            /** @var list<string> $sql */
-            $sql = $schemaTool->getUpdateSchemaSql($metadata);
-
-            return $sql;
-        } catch (\ArgumentCountError) {
-            /** @var list<string> $sql */
-            $sql = $schemaTool->getUpdateSchemaSql($metadata, true);
-
-            return $sql;
-        }
-    }
-
-    /**
-     * @param list<object> $metadata
-     */
-    private function updateSchema(SchemaTool $schemaTool, array $metadata): void
-    {
-        try {
-            $schemaTool->updateSchema($metadata);
-        } catch (\ArgumentCountError) {
-            $schemaTool->updateSchema($metadata, true);
-        }
     }
 }
