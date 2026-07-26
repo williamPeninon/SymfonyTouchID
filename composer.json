@@ -1,6 +1,6 @@
 {
     "name": "wpconsulting/touch-id-bundle",
-    "type": "symfony-bundle",
+    "type": "composer-plugin",
     "description": "Symfony bundle for WebAuthn platform passkeys (Face ID, Touch ID, Samsung fingerprint, Windows Hello).",
     "keywords": [
         "symfony",
@@ -21,6 +21,7 @@
     ],
     "require": {
         "php": ">=8.2",
+        "composer-plugin-api": "^2.2",
         "doctrine/doctrine-bundle": "^2.11|^3.0",
         "doctrine/orm": "^2.17|^3.0",
         "lbuchs/webauthn": "^2.2",
@@ -33,14 +34,19 @@
         "symfony/twig-bundle": "^6.4|^7.0",
         "twig/twig": "^3.8"
     },
+    "require-dev": {
+        "composer/composer": "^2.2"
+    },
     "autoload": {
         "psr-4": {
             "WpConsulting\\TouchIdBundle\\": "src/"
         }
     },
     "extra": {
+        "class": "WpConsulting\\TouchIdBundle\\Composer\\Plugin",
+        "plugin-optional": false,
         "branch-alias": {
-            "dev-main": "1.4-dev"
+            "dev-main": "1.5-dev"
         }
     },
     "minimum-stability": "stable"

@@ -6,6 +6,7 @@ services:
     WpConsulting\TouchIdBundle\:
         resource: '../src/'
         exclude:
+            - '../src/Composer/'
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/TouchIdBundle.php'

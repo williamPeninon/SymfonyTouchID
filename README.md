@@ -20,45 +20,34 @@ Bundle Symfony pour la connexion sans mot de passe via **WebAuthn / passkeys** s
 
 ## Wiring (checklist d’installation)
 
-### 1. Endpoint Flex (recommandé)
-
-Dans le `composer.json` de **l’application** (URL **raw**, pas l’API GitHub `contents`) :
-
-```json
-{
-    "extra": {
-        "symfony": {
-            "endpoint": [
-                "https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/index.json",
-                "flex://defaults"
-            ]
-        }
-    }
-}
-```
-
-> **Important :** l’endpoint Flex doit pointer vers l’index **raw** :
-> `https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/index.json`
->
-> Si Flex affiche `From auto-generated recipe`, la recipe custom n’a **pas** été trouvée (mauvais endpoint, cache, ou `is_contrib` / `allow-contrib`). Puis :
-> ```bash
-> rm -rf "$(composer config cache-dir)/repo/flex"
-> composer recipes:install wpconsulting/touch-id-bundle --force -v
-> ```
-> Vous devez voir `From github.com/williamPeninon/SymfonyTouchID` (pas `auto-generated`).
->
-> **`post-install-output` (bandeau jaune « instructions ») :** Flex ne l’affiche **que** à la fin d’un `composer require` / `update` / `install`, via `@auto-scripts` (« What's next? »).  
-> `composer recipes:install --force` applique bien les fichiers, mais affiche **uniquement** le bandeau bleu « Files have been reset… » — c’est le comportement normal de Symfony Flex, pas un bug de la recipe.
-
-### 2. Composer
+### 1. Composer
 
 ```bash
 composer require wpconsulting/touch-id-bundle
 ```
 
-Avec Flex : bundle enregistré + copie de `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml`.
+À l’install, un **plugin Composer** (inclus dans le package) :
 
-Sans Flex, ajoutez à la main :
+- crée `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml` s’ils manquent ;
+- enregistre le bundle dans `config/bundles.php` si besoin ;
+- affiche le checklist de wiring dans la console.
+
+> **Endpoint Flex (optionnel)** — pour synchroniser aussi via Symfony Flex :
+> ```json
+> "extra": {
+>     "symfony": {
+>         "endpoint": [
+>             "https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/index.json",
+>             "flex://defaults"
+>         ]
+>     }
+> }
+> ```
+> Sans cet endpoint, Flex affiche `auto-generated recipe` : ce n’est pas bloquant, le plugin Composer fait le travail.
+
+### 2. Bundle déjà enregistré
+
+Si le plugin n’a pas pu écrire `bundles.php`, ajoutez :
 
 ```php
 // config/bundles.php

@@ -1,0 +1,2 @@
+touch_id:
+    resource: '@TouchIdBundle/config/routes.yaml'
