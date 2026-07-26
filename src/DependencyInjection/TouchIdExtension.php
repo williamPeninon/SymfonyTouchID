@@ -77,19 +77,29 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             ]);
         }
 
-        if (interface_exists(AssetMapperInterface::class)) {
-            $container->prependExtensionConfig('framework', [
-                'asset_mapper' => [
-                    'paths' => [
-                        \dirname(__DIR__, 2).'/assets' => '@wpconsulting/touch-id-bundle',
-                    ],
+        $bundleRoot = \dirname(__DIR__, 2);
+
+        $frameworkPrepend = [
+            'translator' => [
+                'paths' => [
+                    $bundleRoot.'/translations',
                 ],
-            ]);
+            ],
+        ];
+
+        if (interface_exists(AssetMapperInterface::class)) {
+            $frameworkPrepend['asset_mapper'] = [
+                'paths' => [
+                    $bundleRoot.'/assets' => '@wpconsulting/touch-id-bundle',
+                ],
+            ];
         }
+
+        $container->prependExtensionConfig('framework', $frameworkPrepend);
 
         $container->prependExtensionConfig('twig', [
             'paths' => [
-                \dirname(__DIR__, 2).'/templates' => 'TouchId',
+                $bundleRoot.'/templates' => 'TouchId',
             ],
         ]);
     }

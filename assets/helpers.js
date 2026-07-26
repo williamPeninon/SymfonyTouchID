@@ -1,5 +1,6 @@
 /**
- * WebAuthn helpers for Apple biometrics (Touch ID on Mac, Face ID / Touch ID on iPhone & iPad).
+ * WebAuthn helpers for platform biometrics:
+ * Apple Touch ID / Face ID, Samsung / Android fingerprint & face, Windows Hello, etc.
  */
 
 export function isMacPlatform() {
@@ -24,14 +25,39 @@ export function isIosDevice() {
     return /Mac|Macintosh/.test(platform) && navigator.maxTouchPoints > 1;
 }
 
-/** Mac (Touch ID) or iPhone/iPad (Face ID / Touch ID). */
+export function isAndroidDevice() {
+    return /Android/i.test(navigator.userAgent || '');
+}
+
+export function isSamsungDevice() {
+    const ua = navigator.userAgent || '';
+    return /Samsung|SM-[A-Z0-9]+|Galaxy/i.test(ua);
+}
+
+export function isWindowsDevice() {
+    const platform = navigator.platform || navigator.userAgentData?.platform || '';
+    return /Win/i.test(platform) || /Windows/i.test(navigator.userAgent || '');
+}
+
+/** @deprecated Prefer supportsPlatformBiometricUi() — kept for backward compatibility. */
 export function isAppleBiometricDevice() {
     return isMacPlatform() || isIosDevice();
 }
 
 /**
+ * Any device that may expose a platform authenticator.
+ * Final availability is still checked via isPlatformAuthenticatorAvailable().
+ */
+export function supportsPlatformBiometricUi() {
+    return isAppleBiometricDevice()
+        || isAndroidDevice()
+        || isWindowsDevice()
+        || isWebAuthnAvailable();
+}
+
+/**
  * Best-effort label for the device biometric.
- * WebAuthn does not expose Face ID vs Touch ID — we infer from the platform.
+ * WebAuthn does not expose fingerprint vs face — we infer from the platform.
  */
 export function preferredBiometricLabel() {
     if (isIosDevice()) {
@@ -40,7 +66,16 @@ export function preferredBiometricLabel() {
     if (isMacPlatform()) {
         return 'Touch ID';
     }
-    return 'Face ID / Touch ID';
+    if (isSamsungDevice()) {
+        return 'Samsung Fingerprint';
+    }
+    if (isAndroidDevice()) {
+        return 'Fingerprint';
+    }
+    if (isWindowsDevice()) {
+        return 'Windows Hello';
+    }
+    return 'Biometrics';
 }
 
 export function isWebAuthnAvailable() {
@@ -146,4 +181,24 @@ export async function fetchJson(url, body = {}, method = 'POST') {
         throw error;
     }
     return data;
+}
+
+/** Friendlier messages for Android Credential Manager failures. */
+export function formatWebAuthnError(error, fallback) {
+    const message = String(error?.message || '');
+    const name = error?.name || '';
+
+    if (name === 'NotAllowedError') {
+        return null; // caller handles cancel
+    }
+
+    if (
+        name === 'NotReadableError'
+        || /credential manager/i.test(message)
+        || /unknown error occurred while talking/i.test(message)
+    ) {
+        return 'Erreur Android Credential Manager. Vérifiez : un compte Google sur le téléphone, écran verrouillé (code/empreinte) activé, Chrome à jour, puis réessayez. Sur ngrok, restez bien sur l’URL https du tunnel.';
+    }
+
+    return message || fallback || 'Échec biométrique.';
 }

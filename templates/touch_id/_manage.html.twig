@@ -3,23 +3,24 @@
   Usage (pass credentials from TouchIdManager::listCredentials):
   {% include '@TouchId/touch_id/_manage.html.twig' with { credentials: webAuthnCredentials } %}
 #}
+{% set tid_domain = translation_domain|default('TouchIdBundle') %}
 <div
     class="{{ wrapper_class|default('') }}"
     data-controller="webauthn-register"
     data-webauthn-register-options-url-value="{{ path('webauthn_register_options') }}"
     data-webauthn-register-verify-url-value="{{ path('webauthn_register_verify') }}"
     data-webauthn-register-delete-url-template-value="{{ path('webauthn_credential_delete', { id: 999999999 })|replace({'999999999': '__ID__'}) }}"
-    data-cancel-message="{{ (cancel_message|default('account.webauthn.cancelled'))|trans }}"
-    data-error-message="{{ (error_message|default('account.webauthn.register_failed'))|trans }}"
-    data-success-message="{{ (success_message|default('account.webauthn.registered'))|trans }}"
-    data-deleted-message="{{ (deleted_message|default('account.webauthn.deleted'))|trans }}"
-    data-confirm-delete="{{ (confirm_delete|default('account.webauthn.confirm_delete'))|trans }}"
-    data-delete-label="{{ (delete_label|default('account.webauthn.delete'))|trans }}"
-    data-host-message="{{ (host_message|default('account.webauthn.invalid_host'))|trans }}"
-    data-add-label-template="{{ (add_label_template|default('account.webauthn.add_template'))|trans }}"
+    data-cancel-message="{{ (cancel_message|default('cancelled'))|trans({}, tid_domain) }}"
+    data-error-message="{{ (error_message|default('register_failed'))|trans({}, tid_domain) }}"
+    data-success-message="{{ (success_message|default('registered'))|trans({}, tid_domain) }}"
+    data-deleted-message="{{ (deleted_message|default('deleted'))|trans({}, tid_domain) }}"
+    data-confirm-delete="{{ (confirm_delete|default('confirm_delete'))|trans({}, tid_domain) }}"
+    data-delete-label="{{ (delete_label|default('delete'))|trans({}, tid_domain) }}"
+    data-host-message="{{ (host_message|default('invalid_host'))|trans({}, tid_domain) }}"
+    data-add-label-template="{{ (add_label_template|default('add_template'))|trans({}, tid_domain) }}"
 >
     <div class="alert alert-info" data-webauthn-register-target="unsupported" hidden>
-        {{ (mac_only|default('account.webauthn.mac_only'))|trans }}
+        {{ (mac_only|default('mac_only'))|trans({}, tid_domain) }}
     </div>
 
     <div data-webauthn-register-target="panel" hidden>
@@ -27,7 +28,7 @@
         <div class="alert alert-success" data-webauthn-register-target="success" hidden></div>
 
         <p class="text-muted mb-3" data-webauthn-register-target="empty" {% if credentials is not empty %}hidden{% endif %}>
-            {{ (empty_message|default('account.webauthn.empty'))|trans }}
+            {{ (empty_message|default('empty'))|trans({}, tid_domain) }}
         </p>
 
         <ul class="list-unstyled mb-3" data-webauthn-register-target="list" {% if credentials is empty %}hidden{% endif %}>
@@ -43,7 +44,7 @@
                         data-action="webauthn-register#remove"
                         data-credential-id="{{ credential.id }}"
                     >
-                        {{ (delete_label|default('account.webauthn.delete'))|trans }}
+                        {{ (delete_label|default('delete'))|trans({}, tid_domain) }}
                     </button>
                 </li>
             {% endfor %}
@@ -55,7 +56,7 @@
             data-webauthn-register-target="button"
             data-action="webauthn-register#register"
         >
-            <span data-webauthn-register-target="addLabel">{{ (add_label|default('account.webauthn.add'))|trans }}</span>
+            <span data-webauthn-register-target="addLabel">{{ (add_label|default('add'))|trans({}, tid_domain) }}</span>
         </button>
     </div>
 </div>

@@ -3,13 +3,14 @@ import {
     assertValidWebAuthnHost,
     bufferToBase64Url,
     fetchJson,
-    isAppleBiometricDevice,
+    formatWebAuthnError,
     isInvalidWebAuthnHost,
-    isPlatformAuthenticatorAvailable,
-    isWebAuthnAvailable,
     localhostSuggestionUrl,
     preferredBiometricLabel,
     preparePublicKeyOptions,
+    supportsPlatformBiometricUi,
+    isPlatformAuthenticatorAvailable,
+    isWebAuthnAvailable,
 } from '../helpers.js';
 
 /* stimulusFetch: 'lazy' */
@@ -22,7 +23,7 @@ export default class extends Controller {
     static targets = ['button', 'error', 'divider'];
 
     async connect() {
-        if (!isAppleBiometricDevice() || !isWebAuthnAvailable()) {
+        if (!supportsPlatformBiometricUi() || !isWebAuthnAvailable()) {
             this.element.hidden = true;
             return;
         }
@@ -96,7 +97,7 @@ export default class extends Controller {
             if (error.name === 'NotAllowedError') {
                 this.showError(this.element.dataset.noPasskeyMessage || this.element.dataset.cancelMessage || 'Connexion annulée.');
             } else {
-                this.showError(error.message || this.element.dataset.errorMessage || 'Échec de la connexion.');
+                this.showError(formatWebAuthnError(error, this.element.dataset.errorMessage) || this.element.dataset.errorMessage || 'Échec de la connexion.');
             }
         } finally {
             this.setLoading(false);

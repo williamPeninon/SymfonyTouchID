@@ -45,10 +45,10 @@ final class Configuration implements ConfigurationInterface
                     ->info('Optional AuthenticationSuccessHandlerInterface service id')
                 ->end()
                 ->scalarNode('translation_domain')
-                    ->defaultValue('messages')
+                    ->defaultValue('TouchIdBundle')
                 ->end()
                 ->scalarNode('translation_prefix')
-                    ->defaultValue('account.webauthn.')
+                    ->defaultValue('')
                 ->end()
             ->end();
 

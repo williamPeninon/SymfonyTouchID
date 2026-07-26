@@ -3,16 +3,17 @@
   Usage:
   {% include '@TouchId/touch_id/_login_button.html.twig' %}
 #}
+{% set tid_domain = translation_domain|default('TouchIdBundle') %}
 <div
     class="webauthn-login {{ delay|default('') }}"
     data-controller="webauthn-login"
     data-webauthn-login-options-url-value="{{ path('webauthn_login_options') }}"
     data-webauthn-login-verify-url-value="{{ path('webauthn_login_verify') }}"
-    data-cancel-message="{{ (cancel_message|default('account.webauthn.cancelled'))|trans }}"
-    data-error-message="{{ (error_message|default('account.webauthn.login_failed'))|trans }}"
-    data-host-message="{{ (host_message|default('account.webauthn.invalid_host'))|trans }}"
-    data-no-passkey-message="{{ (no_passkey_message|default('account.webauthn.login_no_passkey'))|trans }}"
-    data-login-label-template="{{ (login_label_template|default('account.webauthn.login_template'))|trans }}"
+    data-cancel-message="{{ (cancel_message|default('cancelled'))|trans({}, tid_domain) }}"
+    data-error-message="{{ (error_message|default('login_failed'))|trans({}, tid_domain) }}"
+    data-host-message="{{ (host_message|default('invalid_host'))|trans({}, tid_domain) }}"
+    data-no-passkey-message="{{ (no_passkey_message|default('login_no_passkey'))|trans({}, tid_domain) }}"
+    data-login-label-template="{{ (login_label_template|default('login_template'))|trans({}, tid_domain) }}"
     hidden
 >
     <button
@@ -21,15 +22,15 @@
         data-webauthn-login-target="button"
         data-action="webauthn-login#login"
     >
-        <span data-webauthn-login-target="label">{{ (login_label|default('account.webauthn.login'))|trans }}</span>
+        <span data-webauthn-login-target="label">{{ (login_label|default('login'))|trans({}, tid_domain) }}</span>
     </button>
     {% if show_hint|default(true) %}
-        <p class="{{ hint_class|default('auth-webauthn-hint') }}">{{ (hint_message|default('account.webauthn.login_hint'))|trans }}</p>
+        <p class="{{ hint_class|default('auth-webauthn-hint') }}">{{ (hint_message|default('login_hint'))|trans({}, tid_domain) }}</p>
     {% endif %}
     <div class="alert alert-danger mt-2 mb-0 py-2" data-webauthn-login-target="error" hidden></div>
     {% if show_divider|default(true) %}
         <div class="auth-divider">
-            <span>{{ (or_label|default('account.oauth.or'))|trans }}</span>
+            <span>{{ (or_label|default('or'))|trans({}, tid_domain) }}</span>
         </div>
     {% endif %}
 </div>

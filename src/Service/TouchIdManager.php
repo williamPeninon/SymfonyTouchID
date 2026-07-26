@@ -81,14 +81,14 @@ class TouchIdManager
             $user->getTouchIdDisplayName(),
             120,
             'preferred',
-            'required',
-            false,
+            'preferred', // Android Credential Manager is more reliable with preferred than required
+            false, // platform authenticator (fingerprint / face on device)
             $excludeIds
         );
 
         $this->storeChallenge(self::SESSION_CREATE_CHALLENGE, $webAuthn->getChallenge());
 
-        return $args;
+        return $this->sanitizeCreateOptions($args);
     }
 
     public function registerCredential(TouchIdUserInterface $user, Request $request, object $payload, ?string $name = null): WebAuthnCredential
@@ -101,7 +101,7 @@ class TouchIdManager
                 $this->decodeBinaryField($payload->clientDataJSON ?? null),
                 $this->decodeBinaryField($payload->attestationObject ?? null),
                 $challenge,
-                true,
+                false, // userVerification preferred on create — do not hard-fail if UV bit missing
                 true,
                 false
             );
@@ -145,20 +145,22 @@ class TouchIdManager
             }
         }
 
+        // Allow all transports: Android Credential Manager / Google Password Manager
+        // often fail when restricted to "internal" only.
         $args = $webAuthn->getGetArgs(
             $credentialIds,
             120,
-            false,
-            false,
-            false,
-            false,
             true,
-            'required'
+            true,
+            true,
+            true,
+            true,
+            'preferred'
         );
 
         $this->storeChallenge(self::SESSION_GET_CHALLENGE, $webAuthn->getChallenge());
 
-        return $args;
+        return $this->sanitizeGetOptions($args);
     }
 
     public function authenticate(Request $request, object $payload): TouchIdUserInterface
@@ -181,7 +183,7 @@ class TouchIdManager
                 $credential->getPublicKey(),
                 $challenge,
                 $credential->getSignCount() > 0 ? $credential->getSignCount() : null,
-                true,
+                false,
                 true
             );
         } catch (WebAuthnException $e) {
@@ -276,5 +278,64 @@ class TouchIdManager
         $decoded = base64_decode(strtr($data, '-_', '+/'), true);
 
         return $decoded === false ? '' : $decoded;
+    }
+
+    /**
+     * Android Credential Manager (Samsung / Chrome) rejects some non-standard options
+     * produced by lbuchs/webauthn (e.g. extensions.exts) and prefers ES256 first.
+     */
+    private function sanitizeCreateOptions(object $args): object
+    {
+        if (!isset($args->publicKey) || !\is_object($args->publicKey)) {
+            return $args;
+        }
+
+        unset($args->publicKey->extensions);
+
+        $params = $args->publicKey->pubKeyCredParams ?? null;
+        if (\is_array($params) && $params !== []) {
+            $byAlg = [];
+            foreach ($params as $param) {
+                if (\is_object($param) && isset($param->alg)) {
+                    $byAlg[(int) $param->alg] = $param;
+                }
+            }
+
+            // ES256 first, then RS256. Skip EdDSA (-8): unreliable on some Android stacks.
+            $ordered = [];
+            foreach ([-7, -257] as $alg) {
+                if (isset($byAlg[$alg])) {
+                    $ordered[] = $byAlg[$alg];
+                }
+            }
+            if ($ordered !== []) {
+                $args->publicKey->pubKeyCredParams = $ordered;
+            }
+        }
+
+        // Empty excludeCredentials can confuse some providers — omit when empty.
+        if (isset($args->publicKey->excludeCredentials) && $args->publicKey->excludeCredentials === []) {
+            unset($args->publicKey->excludeCredentials);
+        }
+
+        return $args;
+    }
+
+    private function sanitizeGetOptions(object $args): object
+    {
+        if (!isset($args->publicKey) || !\is_object($args->publicKey)) {
+            return $args;
+        }
+
+        // Prefer omitting empty transports arrays on allowCredentials.
+        if (isset($args->publicKey->allowCredentials) && \is_array($args->publicKey->allowCredentials)) {
+            foreach ($args->publicKey->allowCredentials as $cred) {
+                if (\is_object($cred) && isset($cred->transports) && $cred->transports === []) {
+                    unset($cred->transports);
+                }
+            }
+        }
+
+        return $args;
     }
 }

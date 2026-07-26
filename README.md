@@ -1,6 +1,6 @@
 # WP Consulting Touch ID Bundle
-#
-# Symfony bundle for Apple Face ID & Touch ID via platform WebAuthn (passkeys).
+
+Symfony bundle for platform WebAuthn passkeys: Apple Face ID / Touch ID, Samsung / Android fingerprint & face, Windows Hello.
 
 ## Installation (Packagist)
 
@@ -26,8 +26,9 @@ wp_consulting_touch_id:
     login_authenticator: form_login
     default_redirect_route: app_account
     success_handler: App\Security\LoginSuccessHandler # optional
-    translation_domain: messages
-    translation_prefix: 'account.webauthn.'
+    # Built-in CTA strings (fr/en/es/de) — override domain/prefix only if needed
+    translation_domain: TouchIdBundle
+    translation_prefix: ''
 ```
 
 ```yaml
@@ -100,13 +101,13 @@ php bin/console doctrine:migrations:migrate
 
 ## Twig
 
-Login button:
+Login CTA:
 
 ```twig
 {% include '@TouchId/touch_id/_login_button.html.twig' %}
 ```
 
-Manage fingerprints (authenticated account page):
+Manage biometrics (authenticated account page):
 
 ```twig
 {% include '@TouchId/touch_id/_manage.html.twig' with {
@@ -114,21 +115,75 @@ Manage fingerprints (authenticated account page):
 } %}
 ```
 
-Or inject `TouchIdManager` in your controller and pass `webAuthnCredentials`.
+Strings for these CTAs ship in the bundle (`TouchIdBundle` domain: `fr`, `en`, `es`, `de`). Override any key in your app translations if needed.
+
+## Google Cloud Console (Android / Samsung Credential Manager)
+
+Web-only passkeys (Chrome / Samsung Internet on HTTPS) work **without** Google Cloud.
+Use [Google Cloud Console](https://console.cloud.google.com/) when you also ship a **native Android app** and want Google Password Manager / Credential Manager to share passkeys between the app and your website ([Digital Asset Links](https://developers.google.com/identity/credential-sharing/set-up)).
+
+### 1. Create or select a project
+
+1. Open https://console.cloud.google.com/
+2. Select an existing project, or **New project** → name it (e.g. `my-app-passkeys`) → **Create**
+
+### 2. Register an Android OAuth client (SHA-256)
+
+1. Menu **APIs & Services** → **Credentials**
+2. **+ Create credentials** → **OAuth client ID**
+3. If prompted, configure the OAuth consent screen (External / Internal)
+4. Application type: **Android**
+5. Package name: your app id (e.g. `com.example.myapp`)
+6. **SHA-256 certificate fingerprint**:
+   - Debug: `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
+   - Release / Play App Signing: Play Console → your app → **Setup** → **App signing** → copy **SHA-256**
+7. **Create** and keep the client
+
+### 3. Publish Digital Asset Links on your website
+
+Host this file at `https://YOUR_DOMAIN/.well-known/assetlinks.json` (`Content-Type: application/json`, HTTP 200, no redirect):
+
+```json
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.myapp",
+      "sha256_cert_fingerprints": [
+        "AA:BB:CC:...:FF"
+      ]
+    }
+  }
+]
+```
+
+Use the same SHA-256 as in the Cloud Console Android OAuth client.
+See [Credential Manager prerequisites](https://developer.android.com/identity/credential-manager/prerequisites).
+
+### 4. Checklist before testing on Samsung / Android
+
+- Site served over **HTTPS** (or `localhost` for local web-only tests)
+- WebAuthn **RP ID** = the public hostname (same URL for register and login; ngrok ≠ production ≠ localhost)
+- User registers a passkey **on that device** via your account page (phone unlock fingerprint alone is not a website passkey)
+- If you have a native app: `assetlinks.json` reachable and fingerprints match Cloud Console / Play signing
 
 ## Supported devices
 
 - **Mac** → Touch ID
 - **iPhone / iPad** → Face ID (or Touch ID on older devices)
-
-The OS chooses Face ID or Touch ID automatically; WebAuthn uses the same platform authenticator API.
+- **Samsung / Android** → fingerprint / face (Credential Manager)
+- **Windows** → Windows Hello
 
 ## Local development note
 
-WebAuthn rejects IP addresses. Use `https://localhost:PORT` (not `127.0.0.1`).
+WebAuthn rejects IP addresses. Use `https://localhost:PORT` or `http://localhost:PORT` (not `127.0.0.1`).
 
 ## Publish on Packagist
 
 1. Push this package to a public Git repository
 2. Submit the repository URL on https://packagist.org/packages/submit
-3. Tag a release: `git tag v1.0.0 && git push --tags`
+3. Tag a release: `git tag v1.2.0 && git push --tags`
