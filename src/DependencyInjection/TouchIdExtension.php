@@ -26,6 +26,8 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('wp_consulting_touch_id.configured', $configured);
         $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class'] ?? null);
 
+        // Doctrine alias TouchIdUserInterface → user_class is applied in ResolveTouchIdUserTargetEntityPass.
+
         // Allow the host app to boot (asset-map:compile, cache:clear) before User exists.
         if (!$configured) {
             return;
@@ -81,25 +83,8 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
 
     public function prepend(ContainerBuilder $container): void
     {
-        $configs = $container->getExtensionConfig($this->getAlias());
-        $config = $this->processConfiguration(new Configuration(), $configs);
         $bundleRoot = \dirname(__DIR__, 2);
 
-        $doctrineOrm = [];
-
-        // Mapping is registered via DoctrineOrmMappingsPass in TouchIdBundle::build().
-        // resolve_target_entities is still needed so ManyToOne(TouchIdUserInterface) becomes a real FK.
-        if (!empty($config['user_class']) && class_exists($config['user_class'])) {
-            $doctrineOrm['resolve_target_entities'] = [
-                TouchIdUserInterface::class => $config['user_class'],
-            ];
-        }
-
-        if ($doctrineOrm !== []) {
-            $container->prependExtensionConfig('doctrine', [
-                'orm' => $doctrineOrm,
-            ]);
-        }
         $frameworkPrepend = [
             'translator' => [
                 'paths' => [
