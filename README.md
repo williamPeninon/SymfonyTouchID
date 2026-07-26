@@ -37,25 +37,18 @@ Dans le `composer.json` de **l’application** (URL **raw**, pas l’API GitHub 
 }
 ```
 
-> **Important :** dans `composer.json`, l’endpoint Flex doit pointer vers l’index **raw** :
->
+> **Important :** l’endpoint Flex doit pointer vers l’index **raw** :
 > `https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/index.json`
 >
-> Si Flex affiche `From auto-generated recipe`, la recipe custom n’a **pas** été trouvée (mauvais endpoint, ou cache). Vérifiez l’endpoint, puis :
+> Si Flex affiche `From auto-generated recipe`, la recipe custom n’a **pas** été trouvée (mauvais endpoint, cache, ou `is_contrib` / `allow-contrib`). Puis :
 > ```bash
-> rm -rf ~/.composer/cache/flex
-> composer clear-cache
+> rm -rf "$(composer config cache-dir)/repo/flex"
 > composer recipes:install wpconsulting/touch-id-bundle --force -v
 > ```
-> Vous devez voir `From github.com/williamPeninon/SymfonyTouchID` (pas `auto-generated`), et le `post-install-output` s’affiche en fin d’install Composer (pas forcément avec `recipes:install` seul selon la version de Flex).
-
-Puis réinstallez / mettez à jour pour appliquer la recipe :
-
-```bash
-composer require wpconsulting/touch-id-bundle
-# ou si déjà installé sans recipe :
-composer recipes:install wpconsulting/touch-id-bundle --force -v
-```
+> Vous devez voir `From github.com/williamPeninon/SymfonyTouchID` (pas `auto-generated`).
+>
+> **`post-install-output` (bandeau jaune « instructions ») :** Flex ne l’affiche **que** à la fin d’un `composer require` / `update` / `install`, via `@auto-scripts` (« What's next? »).  
+> `composer recipes:install --force` applique bien les fichiers, mais affiche **uniquement** le bandeau bleu « Files have been reset… » — c’est le comportement normal de Symfony Flex, pas un bug de la recipe.
 
 ### 2. Composer
 
