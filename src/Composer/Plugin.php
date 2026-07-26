@@ -157,7 +157,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface
         $io->write('  * Implement <comment>TouchIdUserInterface</> on your User entity.');
         $io->write('  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.');
         $io->write('  * Enable Stimulus controllers in <comment>assets/controllers.json</> (see README).');
-        $io->write('  * Create the table: <comment>php bin/console touch-id:install</>');
+        $io->write('  * Create the table: <comment>php bin/console doctrine:migrations:diff && doctrine:migrations:migrate</>');
         $io->write('  * Twig: <comment>touch_id_credentials(app.user)</> / global <comment>touch_id_manager</>.');
         $io->write('');
     }

@@ -20,7 +20,7 @@
                     "",
                     "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class).",
                     "  * Implement <comment>TouchIdUserInterface</> on your User entity.",
-                    "  * Then: <comment>php bin/console touch-id:install</>",
+                    "  * Then: <comment>php bin/console doctrine:migrations:diff && doctrine:migrations:migrate</>",
                     ""
                 ]
             },

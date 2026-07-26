@@ -65,6 +65,7 @@ final class TouchIdInstallCommand extends Command
             '3) security access_control PUBLIC_ACCESS for ^/webauthn/login',
             '4) assets/controllers.json enables @wpconsulting/touch-id-bundle',
             '5) User implements TouchIdUserInterface',
+            '6) php bin/console doctrine:migrations:diff && doctrine:migrations:migrate',
         ]);
 
         return Command::SUCCESS;

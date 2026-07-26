@@ -119,13 +119,21 @@ class User implements UserInterface, TouchIdUserInterface
 
 ### 7. Base de données
 
+Une fois `user_class` renseigné (pour résoudre la FK vers User) :
+
 ```bash
-php bin/console touch-id:install
-# alternatives :
-#   php bin/console touch-id:install --dump-sql
-#   Resources/schema.sql
-#   migration Flex : flex/wpconsulting/touch-id-bundle/1.4/migrations/ (adapter la FK user)
+php bin/console doctrine:migrations:diff
+php bin/console doctrine:migrations:migrate
 ```
+
+Vérifier que Doctrine voit l’entité du bundle :
+
+```bash
+php bin/console doctrine:mapping:info
+# doit lister WpConsulting\TouchIdBundle\Entity\WebAuthnCredential
+```
+
+Alternatives : `php bin/console touch-id:install`, `Resources/schema.sql`.
 
 ### 8. Stimulus
 
@@ -174,7 +182,7 @@ Le bundle n’embarque pas de CSS. Styles à prévoir pour `.auth-webauthn-btn`,
 | 4 | Import routes | Oui (fichier copié) |
 | 5 | `access_control` `/webauthn/login` | Non |
 | 6 | `TouchIdUserInterface` sur User | Non |
-| 7 | `touch-id:install` | Non |
+| 7 | `doctrine:migrations:diff` + `migrate` | Non |
 | 8 | `controllers.json` Stimulus | Non |
 | 9–10 | Includes Twig login + compte | Non |
 | 11 | CSS | Non |

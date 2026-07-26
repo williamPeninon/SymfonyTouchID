@@ -22,7 +22,7 @@
                     "  * Implement <comment>TouchIdUserInterface</> on your User entity.",
                     "  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.",
                     "  * Enable Stimulus controllers in <comment>assets/controllers.json</> (see README).",
-                    "  * Create the table: <comment>php bin/console touch-id:install</>",
+                    "  * Create the table: <comment>php bin/console doctrine:migrations:diff && doctrine:migrations:migrate</>",
                     "  * Twig: <comment>touch_id_credentials(app.user)</> / global <comment>touch_id_manager</>.",
                     ""
                 ]

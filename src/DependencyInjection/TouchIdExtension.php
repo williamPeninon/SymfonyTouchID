@@ -85,28 +85,21 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $config = $this->processConfiguration(new Configuration(), $configs);
         $bundleRoot = \dirname(__DIR__, 2);
 
-        $doctrineOrm = [
-            'mappings' => [
-                'TouchIdBundle' => [
-                    'type' => 'attribute',
-                    'is_bundle' => false,
-                    'dir' => \dirname(__DIR__).'/Entity',
-                    'prefix' => 'WpConsulting\TouchIdBundle\Entity',
-                    'alias' => 'TouchIdBundle',
-                ],
-            ],
-        ];
+        $doctrineOrm = [];
 
+        // Mapping is registered via DoctrineOrmMappingsPass in TouchIdBundle::build().
+        // resolve_target_entities is still needed so ManyToOne(TouchIdUserInterface) becomes a real FK.
         if (!empty($config['user_class']) && class_exists($config['user_class'])) {
             $doctrineOrm['resolve_target_entities'] = [
                 TouchIdUserInterface::class => $config['user_class'],
             ];
         }
 
-        $container->prependExtensionConfig('doctrine', [
-            'orm' => $doctrineOrm,
-        ]);
-
+        if ($doctrineOrm !== []) {
+            $container->prependExtensionConfig('doctrine', [
+                'orm' => $doctrineOrm,
+            ]);
+        }
         $frameworkPrepend = [
             'translator' => [
                 'paths' => [
