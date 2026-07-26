@@ -1,0 +1,34 @@
+{# @TouchId/touch_id/_login_button.html.twig #}
+{#
+  Usage:
+  {% include '@TouchId/touch_id/_login_button.html.twig' %}
+#}
+<div
+    class="webauthn-login {{ delay|default('') }}"
+    data-controller="webauthn-login"
+    data-webauthn-login-options-url-value="{{ path('webauthn_login_options') }}"
+    data-webauthn-login-verify-url-value="{{ path('webauthn_login_verify') }}"
+    data-cancel-message="{{ (cancel_message|default('account.webauthn.cancelled'))|trans }}"
+    data-error-message="{{ (error_message|default('account.webauthn.login_failed'))|trans }}"
+    data-host-message="{{ (host_message|default('account.webauthn.invalid_host'))|trans }}"
+    data-no-passkey-message="{{ (no_passkey_message|default('account.webauthn.login_no_passkey'))|trans }}"
+    hidden
+>
+    <button
+        type="button"
+        class="{{ button_class|default('auth-webauthn-btn') }}"
+        data-webauthn-login-target="button"
+        data-action="webauthn-login#login"
+    >
+        <span>{{ (login_label|default('account.webauthn.login'))|trans }}</span>
+    </button>
+    {% if show_hint|default(true) %}
+        <p class="{{ hint_class|default('auth-webauthn-hint') }}">{{ (hint_message|default('account.webauthn.login_hint'))|trans }}</p>
+    {% endif %}
+    <div class="alert alert-danger mt-2 mb-0 py-2" data-webauthn-login-target="error" hidden></div>
+    {% if show_divider|default(true) %}
+        <div class="auth-divider">
+            <span>{{ (or_label|default('account.oauth.or'))|trans }}</span>
+        </div>
+    {% endif %}
+</div>

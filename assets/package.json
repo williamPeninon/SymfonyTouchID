@@ -1,0 +1,29 @@
+{
+    "name": "@wpconsulting/touch-id-bundle",
+    "description": "Mac Touch ID / WebAuthn Stimulus controllers",
+    "license": "MIT",
+    "version": "1.0.0",
+    "type": "module",
+    "symfony": {
+        "controllers": {
+            "login": {
+                "main": "controllers/login_controller.js",
+                "name": "webauthn-login",
+                "fetch": "lazy",
+                "enabled": true
+            },
+            "register": {
+                "main": "controllers/register_controller.js",
+                "name": "webauthn-register",
+                "fetch": "lazy",
+                "enabled": true
+            }
+        },
+        "importmap": {
+            "@hotwired/stimulus": "^3.0.0"
+        }
+    },
+    "peerDependencies": {
+        "@hotwired/stimulus": "^3.0.0"
+    }
+}

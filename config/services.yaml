@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    WpConsulting\TouchIdBundle\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/TouchIdBundle.php'
+
+    WpConsulting\TouchIdBundle\Controller\TouchIdController:
+        tags: ['controller.service_arguments']
