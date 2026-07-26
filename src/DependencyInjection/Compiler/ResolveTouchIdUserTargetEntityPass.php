@@ -10,8 +10,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
 
 /**
- * Maps TouchIdUserInterface → configured user_class for Doctrine associations
- * (WebAuthnCredential::$user ManyToOne) and schema / migrations:diff.
+ * Maps TouchIdUserInterface → configured user_class for Doctrine associations.
+ *
+ * Must run before Doctrine's RegisterEventListenersAndSubscribersPass (priority 0)
+ * so the listener tags are collected.
  */
 final class ResolveTouchIdUserTargetEntityPass implements CompilerPassInterface
 {
@@ -33,20 +35,36 @@ final class ResolveTouchIdUserTargetEntityPass implements CompilerPassInterface
         }
 
         $listener = $container->findDefinition(self::LISTENER_ID);
-        $listener->addMethodCall('addResolveTargetEntity', [
-            TouchIdUserInterface::class,
-            $userClass,
-            [],
-        ]);
 
-        // DoctrineExtension only tags this listener when resolve_target_entities is set in YAML.
-        // When we register solely via this pass, we must enable the listener ourselves.
+        if (!$this->alreadyResolves(TouchIdUserInterface::class, $listener->getMethodCalls())) {
+            $listener->addMethodCall('addResolveTargetEntity', [
+                TouchIdUserInterface::class,
+                $userClass,
+                [],
+            ]);
+        }
+
+        // Required when resolve_target_entities was not set via doctrine YAML / prepend.
         if (!$this->hasEventTag($listener->getTag('doctrine.event_listener'), Events::loadClassMetadata)) {
             $listener->addTag('doctrine.event_listener', ['event' => Events::loadClassMetadata]);
         }
         if (!$this->hasEventTag($listener->getTag('doctrine.event_listener'), Events::onClassMetadataNotFound)) {
             $listener->addTag('doctrine.event_listener', ['event' => Events::onClassMetadataNotFound]);
         }
+    }
+
+    /**
+     * @param list<array{0: string, 1: array<mixed>}> $methodCalls
+     */
+    private function alreadyResolves(string $originalEntity, array $methodCalls): bool
+    {
+        foreach ($methodCalls as [$method, $args]) {
+            if ($method === 'addResolveTargetEntity' && ($args[0] ?? null) === $originalEntity) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

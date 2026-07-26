@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WpConsulting\TouchIdBundle;
 
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -17,7 +18,13 @@ final class TouchIdBundle extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new ResolveTouchIdUserTargetEntityPass());
+        // Priority > 0: run before Doctrine RegisterEventListenersAndSubscribersPass (priority 0)
+        // so resolve-target listener tags are registered on the event manager.
+        $container->addCompilerPass(
+            new ResolveTouchIdUserTargetEntityPass(),
+            PassConfig::TYPE_BEFORE_OPTIMIZATION,
+            10,
+        );
 
         // Register entity mapping so doctrine:migrations:diff / schema tools see WebAuthnCredential
         // even when the host app only maps App\Entity.

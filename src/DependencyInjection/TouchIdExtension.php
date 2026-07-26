@@ -83,7 +83,21 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
 
     public function prepend(ContainerBuilder $container): void
     {
+        $configs = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration(new Configuration(), $configs);
         $bundleRoot = \dirname(__DIR__, 2);
+
+        // Official DoctrineBundle path: enables ResolveTargetEntityListener tags in DoctrineExtension.
+        // (Compiler pass is a fallback with correct priority.)
+        if (!empty($config['user_class']) && class_exists($config['user_class'])) {
+            $container->prependExtensionConfig('doctrine', [
+                'orm' => [
+                    'resolve_target_entities' => [
+                        TouchIdUserInterface::class => $config['user_class'],
+                    ],
+                ],
+            ]);
+        }
 
         $frameworkPrepend = [
             'translator' => [
