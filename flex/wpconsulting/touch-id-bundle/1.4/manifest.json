@@ -1,0 +1,24 @@
+{
+    "bundles": {
+        "WpConsulting\\TouchIdBundle\\TouchIdBundle": ["all"]
+    },
+    "copy-from-recipe": {
+        "config/": "%CONFIG_DIR%/"
+    },
+    "aliases": ["touch-id", "webauthn-touch-id"],
+    "gitignore": [],
+    "conflict": {},
+    "post-install-output": [
+        "",
+        "<bg=blue;fg=white>        </> <bg=blue;fg=white;options=bold> wpconsulting/touch-id-bundle </>",
+        "",
+        "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class + user_repository).",
+        "  * Implement <comment>TouchIdUserInterface</> on your User and <comment>TouchIdUserRepositoryInterface</> on the repo.",
+        "  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.",
+        "  * Enable Stimulus controllers in <comment>assets/controllers.json</> (see README).",
+        "  * Create the table: <comment>php bin/console touch-id:install</>",
+        "    or copy the migration from the recipe and adjust the user FK.",
+        "  * Twig: <comment>touch_id_credentials(app.user)</> / global <comment>touch_id_manager</>.",
+        ""
+    ]
+}

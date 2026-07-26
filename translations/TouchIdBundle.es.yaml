@@ -20,4 +20,5 @@ invalid_host: 'La biometría no funciona con una dirección IP. Abra el sitio v�
 login_hint: 'Actívela en ESTE dispositivo en Cuenta → Contraseña (la biometría del desbloqueo sola no basta).'
 login_no_passkey: 'No hay passkey para este sitio en este dispositivo. Inicie sesión con su contraseña, luego Cuenta → Contraseña → Añadir.'
 samsung_hint: 'En Samsung, las passkeys del sitio exigen huella (Samsung Pass / Credential Manager). El reconocimiento facial desbloquea el teléfono pero normalmente no se ofrece para passkeys web — no es un ajuste del SaaS.'
+android_error: 'Error de Android Credential Manager. Compruebe: cuenta Google, bloqueo de pantalla (PIN/huella), Chrome actualizado. En ngrok, permanezca en la URL https del túnel.'
 or: 'o'

@@ -20,4 +20,5 @@ invalid_host: 'Biometrie funktioniert nicht mit einer IP-Adresse. Öffnen Sie di
 login_hint: 'Auf DIESEM Gerät unter Konto → Passwort aktivieren (Geräte-Biometrie allein reicht nicht).'
 login_no_passkey: 'Kein Passkey für diese Website auf diesem Gerät. Mit Passwort anmelden, dann Konto → Passwort → Hinzufügen.'
 samsung_hint: 'Auf Samsung erfordern Website-Passkeys den Fingerabdruck (Samsung Pass / Credential Manager). Gesichtserkennung entsperrt das Telefon, wird für Web-Passkeys aber meist nicht angeboten — das ist keine SaaS-Einstellung.'
+android_error: 'Android Credential Manager Fehler. Prüfen Sie: Google-Konto, Bildschirmsperre (PIN/Fingerabdruck), aktuelles Chrome. Bei ngrok die https-Tunnel-URL verwenden.'
 or: 'oder'

@@ -2,15 +2,24 @@
 {#
   Usage:
   {% include '@TouchId/touch_id/_login_button.html.twig' %}
+
+  Optional overrides:
+  - email_input: CSS selector(s) for the login email field
+  - redirect_url: fallback URL after successful login (default: touch_id_redirect_path)
 #}
-{% set tid_domain = translation_domain|default('TouchIdBundle') %}
+{% set tid_domain = translation_domain|default(touch_id_translation_domain|default('TouchIdBundle')) %}
+{% set tid_email_input = email_input|default(touch_id_email_input_selector|default('#username, input[name="_username"], input[name="email"], input[type="email"]')) %}
+{% set tid_redirect = redirect_url|default(touch_id_redirect_path|default('/')) %}
 <div
     class="webauthn-login {{ delay|default('') }}"
     data-controller="webauthn-login"
     data-webauthn-login-options-url-value="{{ path('webauthn_login_options') }}"
     data-webauthn-login-verify-url-value="{{ path('webauthn_login_verify') }}"
+    data-webauthn-login-email-input-value="{{ tid_email_input }}"
+    data-webauthn-login-redirect-url-value="{{ tid_redirect }}"
     data-cancel-message="{{ (cancel_message|default('cancelled'))|trans({}, tid_domain) }}"
     data-error-message="{{ (error_message|default('login_failed'))|trans({}, tid_domain) }}"
+    data-android-message="{{ (android_message|default('android_error'))|trans({}, tid_domain) }}"
     data-host-message="{{ (host_message|default('invalid_host'))|trans({}, tid_domain) }}"
     data-no-passkey-message="{{ (no_passkey_message|default('login_no_passkey'))|trans({}, tid_domain) }}"
     data-login-label-template="{{ (login_label_template|default('login_template'))|trans({}, tid_domain) }}"

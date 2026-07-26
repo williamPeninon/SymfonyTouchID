@@ -18,6 +18,8 @@ export default class extends Controller {
     static values = {
         optionsUrl: String,
         verifyUrl: String,
+        emailInput: { type: String, default: '#username, input[name="_username"], input[name="email"], input[type="email"]' },
+        redirectUrl: { type: String, default: '/' },
     };
 
     static targets = ['button', 'error', 'divider'];
@@ -46,15 +48,38 @@ export default class extends Controller {
         const label = preferredBiometricLabel();
         const labelEl = this.element.querySelector('[data-webauthn-login-target="label"]');
         if (labelEl) {
-            const template = this.element.dataset.loginLabelTemplate || 'Se connecter avec %biometric%';
+            const template = this.element.dataset.loginLabelTemplate || 'Sign in with %biometric%';
             labelEl.textContent = template.replace('%biometric%', label);
         }
     }
 
     hostErrorMessage() {
-        return this.element.dataset.hostMessage
-            ? `${this.element.dataset.hostMessage} ${localhostSuggestionUrl()}`
-            : `${preferredBiometricLabel()} nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
+        const suggestion = localhostSuggestionUrl();
+        if (this.element.dataset.hostMessage) {
+            return `${this.element.dataset.hostMessage} ${suggestion}`;
+        }
+        return `${preferredBiometricLabel()} requires localhost. Open ${suggestion}`;
+    }
+
+    resolveEmail() {
+        const selectors = String(this.emailInputValue || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+        for (const selector of selectors) {
+            try {
+                const el = document.querySelector(selector);
+                const value = el?.value?.trim();
+                if (value) {
+                    return value;
+                }
+            } catch {
+                // invalid selector — skip
+            }
+        }
+
+        return '';
     }
 
     async login(event) {
@@ -65,15 +90,13 @@ export default class extends Controller {
         try {
             assertValidWebAuthnHost(this.hostErrorMessage());
 
-            const emailInput = document.getElementById('username');
-            const email = emailInput?.value?.trim() || '';
-
+            const email = this.resolveEmail();
             const options = await fetchJson(this.optionsUrlValue, email ? { email } : {});
             const publicKey = preparePublicKeyOptions(options);
 
             const credential = await navigator.credentials.get({ publicKey });
             if (!credential) {
-                throw new Error(this.element.dataset.cancelMessage || 'Annulé');
+                throw new Error(this.element.dataset.cancelMessage || 'Cancelled');
             }
 
             const payload = {
@@ -92,12 +115,16 @@ export default class extends Controller {
                 return;
             }
 
-            window.location.href = '/compte';
+            window.location.href = this.redirectUrlValue || '/';
         } catch (error) {
             if (error.name === 'NotAllowedError') {
-                this.showError(this.element.dataset.noPasskeyMessage || this.element.dataset.cancelMessage || 'Connexion annulée.');
+                this.showError(this.element.dataset.noPasskeyMessage || this.element.dataset.cancelMessage || 'Cancelled.');
             } else {
-                this.showError(formatWebAuthnError(error, this.element.dataset.errorMessage) || this.element.dataset.errorMessage || 'Échec de la connexion.');
+                this.showError(
+                    formatWebAuthnError(error, this.element.dataset.androidMessage, this.element.dataset.errorMessage)
+                    || this.element.dataset.errorMessage
+                    || 'Biometric sign-in failed.',
+                );
             }
         } finally {
             this.setLoading(false);

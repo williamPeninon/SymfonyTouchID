@@ -16,12 +16,40 @@ Bundle Symfony pour la connexion sans mot de passe via **WebAuthn / passkeys** s
 composer require wpconsulting/touch-id-bundle
 ```
 
+### Recipe Flex (recommandée)
+
+Le dépôt embarque une recipe sous `flex/`. Dans le `composer.json` de **votre application** :
+
+```json
+{
+    "extra": {
+        "symfony": {
+            "endpoint": [
+                "https://api.github.com/repos/williamPeninon/SymfonyTouchID/contents/flex/index.json?ref=main",
+                "flex://defaults"
+            ]
+        }
+    }
+}
+```
+
+Puis `composer require wpconsulting/touch-id-bundle` : Flex enregistre le bundle, copie `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml`.
+
+Sans Flex, enregistrez le bundle à la main :
+
 ```php
 // config/bundles.php
 WpConsulting\TouchIdBundle\TouchIdBundle::class => ['all' => true],
 ```
 
+### Schéma base de données
 
+```bash
+php bin/console touch-id:install
+# ou : php bin/console touch-id:install --dump-sql
+# ou : SQL de référence dans Resources/schema.sql
+# ou : migration Flex flex/.../migrations/Version20260726210000.php (adapter la FK user)
+```
 
 ## Configuration
 
@@ -36,6 +64,8 @@ wp_consulting_touch_id:
     success_handler: App\Security\LoginSuccessHandler # optionnel
     translation_domain: TouchIdBundle
     translation_prefix: ''
+    # Sélecteurs CSS du champ email sur la page login (découplé du formulaire hôte)
+    email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'
 ```
 
 ```yaml
@@ -109,13 +139,22 @@ php bin/console doctrine:migrations:migrate
 
 ## Twig
 
+Helpers fournis par le bundle :
+
+| Helper | Description |
+|---|---|
+| `touch_id_manager` (global) | Service `TouchIdManager` |
+| `touch_id_credentials(user)` | Liste des credentials de l’utilisateur |
+| `touch_id_redirect_path` (global / fonction) | URL de redirect post-login |
+| `touch_id_email_input_selector` (global) | Sélecteurs CSS email login |
+
 ```twig
-{# Login #}
+{# Login — email_input / redirect_url optionnels #}
 {% include '@TouchId/touch_id/_login_button.html.twig' %}
 
-{# Compte (utilisateur connecté) #}
+{# Compte #}
 {% include '@TouchId/touch_id/_manage.html.twig' with {
-    credentials: touch_id_manager.listCredentials(app.user)
+    credentials: touch_id_credentials(app.user)
 } %}
 ```
 

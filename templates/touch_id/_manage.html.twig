@@ -17,6 +17,7 @@
     data-confirm-delete="{{ (confirm_delete|default('confirm_delete'))|trans({}, tid_domain) }}"
     data-delete-label="{{ (delete_label|default('delete'))|trans({}, tid_domain) }}"
     data-host-message="{{ (host_message|default('invalid_host'))|trans({}, tid_domain) }}"
+    data-android-message="{{ (android_message|default('android_error'))|trans({}, tid_domain) }}"
     data-add-label-template="{{ (add_label_template|default('add_template'))|trans({}, tid_domain) }}"
 >
     <div class="alert alert-info" data-webauthn-register-target="unsupported" hidden>

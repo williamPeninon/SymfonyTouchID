@@ -15,6 +15,7 @@ use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
 use WpConsulting\TouchIdBundle\Controller\TouchIdController;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
+use WpConsulting\TouchIdBundle\Twig\TouchIdExtension;
 
 final class TouchIdExtension extends Extension implements PrependExtensionInterface
 {
@@ -30,8 +31,11 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $loader->load('services.yaml');
 
         $container->getDefinition(TouchIdManager::class)
+            ->setPublic(true)
             ->setArgument('$rpName', $config['rp_name'])
             ->setArgument('$defaultCredentialName', $config['default_credential_name']);
+
+        $container->setAlias('touch_id.manager', TouchIdManager::class)->setPublic(true);
 
         $controller = $container->getDefinition(TouchIdController::class);
         $controller
@@ -51,6 +55,13 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             ->setPublic(false);
 
         $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class']);
+
+        if ($container->hasDefinition(TouchIdExtension::class)) {
+            $container->getDefinition(TouchIdExtension::class)
+                ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
+                ->setArgument('$emailInputSelector', $config['email_input_selector'])
+                ->setArgument('$translationDomain', $config['translation_domain']);
+        }
     }
 
     public function prepend(ContainerBuilder $container): void

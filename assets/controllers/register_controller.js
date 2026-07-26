@@ -134,7 +134,7 @@ export default class extends Controller {
             if (error.name === 'NotAllowedError') {
                 this.showError(this.element.dataset.cancelMessage || 'Enregistrement annulé.');
             } else {
-                this.showError(formatWebAuthnError(error, this.element.dataset.errorMessage) || this.element.dataset.errorMessage || 'Échec de l’enregistrement.');
+                this.showError(formatWebAuthnError(error, this.element.dataset.androidMessage, this.element.dataset.errorMessage) || this.element.dataset.errorMessage || 'Registration failed.');
             }
         } finally {
             this.setLoading(false, trigger);

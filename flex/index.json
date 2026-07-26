@@ -1,0 +1,6 @@
+{
+    "recipes": {
+        "wpconsulting/touch-id-bundle": ["1.0", "1.4"]
+    },
+    "branch": "main"
+}

@@ -20,4 +20,5 @@ invalid_host: 'La biométrie ne fonctionne pas avec une adresse IP. Ouvrez le si
 login_hint: 'À activer sur CE téléphone dans Compte → Mot de passe (la biométrie du déverrouillage seul ne suffit pas).'
 login_no_passkey: 'Aucune passkey pour ce site sur cet appareil. Connectez-vous avec le mot de passe, puis Compte → Mot de passe → Ajouter.'
 samsung_hint: 'Sur Samsung, les passkeys du site exigent l’empreinte (Samsung Pass / Credential Manager). La reconnaissance faciale déverrouille le téléphone mais n’est en général pas proposée pour les passkeys web — ce n’est pas un réglage du SaaS.'
+android_error: 'Erreur Android Credential Manager. Vérifiez : compte Google, verrouillage écran (code/empreinte), Chrome à jour. Sur ngrok, restez sur l’URL https du tunnel.'
 or: 'ou'

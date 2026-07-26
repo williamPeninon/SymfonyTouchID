@@ -9,6 +9,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/TouchIdBundle.php'
+            - '../src/Contract/'
 
     WpConsulting\TouchIdBundle\Controller\TouchIdController:
         tags: ['controller.service_arguments']

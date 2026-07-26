@@ -50,6 +50,11 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('translation_prefix')
                     ->defaultValue('')
                 ->end()
+                ->scalarNode('email_input_selector')
+                    ->defaultValue('#username, input[name="_username"], input[name="email"], input[type="email"]')
+                    ->cannotBeEmpty()
+                    ->info('CSS selector(s) used by the login Stimulus controller to read the email before WebAuthn')
+                ->end()
             ->end();
 
         return $treeBuilder;

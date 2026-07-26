@@ -111,7 +111,7 @@ export function assertValidWebAuthnHost(message) {
     if (!isInvalidWebAuthnHost()) {
         return;
     }
-    const fallback = `${preferredBiometricLabel()} nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
+    const fallback = `${preferredBiometricLabel()} requires localhost. Open ${localhostSuggestionUrl()}`;
     throw new Error(message || fallback);
 }
 
@@ -196,7 +196,7 @@ export async function fetchJson(url, body = {}, method = 'POST') {
 }
 
 /** Friendlier messages for Android Credential Manager failures. */
-export function formatWebAuthnError(error, fallback) {
+export function formatWebAuthnError(error, androidMessage, fallback) {
     const message = String(error?.message || '');
     const name = error?.name || '';
 
@@ -209,8 +209,8 @@ export function formatWebAuthnError(error, fallback) {
         || /credential manager/i.test(message)
         || /unknown error occurred while talking/i.test(message)
     ) {
-        return 'Erreur Android Credential Manager. Vérifiez : un compte Google sur le téléphone, écran verrouillé (code/empreinte) activé, Chrome à jour, puis réessayez. Sur ngrok, restez bien sur l’URL https du tunnel.';
+        return androidMessage || fallback || message || 'Android Credential Manager error.';
     }
 
-    return message || fallback || 'Échec biométrique.';
+    return message || fallback || 'Biometric failure.';
 }

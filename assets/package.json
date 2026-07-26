@@ -1,8 +1,7 @@
 {
     "name": "@wpconsulting/touch-id-bundle",
-    "description": "Mac Touch ID / WebAuthn Stimulus controllers",
-    "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.4.0",
+    "description": "WebAuthn / passkey Stimulus controllers (Touch ID, Face ID, Samsung fingerprint, Windows Hello)",
     "type": "module",
     "symfony": {
         "controllers": {
