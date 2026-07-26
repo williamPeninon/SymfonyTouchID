@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace WpConsulting\TouchIdBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -18,7 +20,8 @@ use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
 use WpConsulting\TouchIdBundle\Repository\WebAuthnCredentialRepository;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
 
-class TouchIdController extends AbstractController
+#[AsController]
+final class TouchIdController
 {
     public function __construct(
         private readonly TouchIdManager $touchIdManager,
@@ -26,6 +29,7 @@ class TouchIdController extends AbstractController
         private readonly TouchIdUserRepositoryInterface $userRepository,
         private readonly Security $security,
         private readonly TranslatorInterface $translator,
+        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly string $loginAuthenticator,
         private readonly string $defaultRedirectRoute,
         private readonly string $translationDomain,
@@ -98,7 +102,7 @@ class TouchIdController extends AbstractController
     #[Route('/webauthn/login/options', name: 'webauthn_login_options', methods: ['POST'])]
     public function loginOptions(Request $request): JsonResponse
     {
-        if ($this->getUser()) {
+        if ($this->security->getUser()) {
             return new JsonResponse(['success' => false, 'message' => 'already_authenticated'], 400);
         }
 
@@ -126,10 +130,10 @@ class TouchIdController extends AbstractController
     #[Route('/webauthn/login/verify', name: 'webauthn_login_verify', methods: ['POST'])]
     public function loginVerify(Request $request): Response
     {
-        if ($this->getUser()) {
+        if ($this->security->getUser()) {
             return new JsonResponse([
                 'success' => true,
-                'redirect' => $this->generateUrl($this->defaultRedirectRoute),
+                'redirect' => $this->urlGenerator->generate($this->defaultRedirectRoute),
             ]);
         }
 
@@ -166,15 +170,15 @@ class TouchIdController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'redirect' => $this->generateUrl($this->defaultRedirectRoute),
+            'redirect' => $this->urlGenerator->generate($this->defaultRedirectRoute),
         ]);
     }
 
     private function requireTouchIdUser(): TouchIdUserInterface
     {
-        $user = $this->getUser();
+        $user = $this->security->getUser();
         if (!$user instanceof TouchIdUserInterface) {
-            throw $this->createAccessDeniedException();
+            throw new AccessDeniedException();
         }
 
         return $user;
