@@ -1,7 +1,7 @@
 {
     "name": "wpconsulting/touch-id-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony bundle for WebAuthn platform passkeys (Face ID, Touch ID, Samsung/Android fingerprint, Windows Hello).",
+    "description": "Symfony bundle for WebAuthn platform passkeys (Face ID, Touch ID, Samsung Face ID / fingerprint, Windows Hello).",
     "keywords": [
         "symfony",
         "webauthn",

@@ -175,7 +175,7 @@ See [Credential Manager prerequisites](https://developer.android.com/identity/cr
 
 - **Mac** → Touch ID
 - **iPhone / iPad** → Face ID (or Touch ID on older devices)
-- **Samsung / Android** → fingerprint / face (Credential Manager)
+- **Samsung / Android** → Samsung Face ID + fingerprint (Credential Manager; enroll face/fingerprint in device settings first)
 - **Windows** → Windows Hello
 
 ## Local development note

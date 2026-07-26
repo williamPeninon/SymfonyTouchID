@@ -50,13 +50,39 @@
             {% endfor %}
         </ul>
 
-        <button
-            type="button"
-            class="{{ add_button_class|default('btn btn-primary') }}"
-            data-webauthn-register-target="button"
-            data-action="webauthn-register#register"
-        >
-            <span data-webauthn-register-target="addLabel">{{ (add_label|default('add'))|trans({}, tid_domain) }}</span>
-        </button>
+        <div class="d-flex flex-wrap gap-2" data-webauthn-register-target="actions">
+            <button
+                type="button"
+                class="{{ add_button_class|default('btn btn-primary') }}"
+                data-webauthn-register-target="button"
+                data-action="webauthn-register#register"
+            >
+                <span data-webauthn-register-target="addLabel">{{ (add_label|default('add'))|trans({}, tid_domain) }}</span>
+            </button>
+            {# Revealed on Samsung: second CTA for Face ID (same WebAuthn platform authenticator) #}
+            <button
+                type="button"
+                class="{{ add_face_button_class|default(add_button_class|default('btn btn-primary')) }}"
+                data-webauthn-register-target="faceButton"
+                data-action="webauthn-register#register"
+                data-credential-name="Samsung Face ID"
+                hidden
+            >
+                <span data-webauthn-register-target="faceLabel">{{ (add_face_label|default('add_face'))|trans({}, tid_domain) }}</span>
+            </button>
+            <button
+                type="button"
+                class="{{ add_fingerprint_button_class|default(add_button_class|default('btn btn-outline-primary')) }}"
+                data-webauthn-register-target="fingerprintButton"
+                data-action="webauthn-register#register"
+                data-credential-name="Samsung Fingerprint"
+                hidden
+            >
+                <span data-webauthn-register-target="fingerprintLabel">{{ (add_fingerprint_label|default('add_fingerprint'))|trans({}, tid_domain) }}</span>
+            </button>
+        </div>
+        <p class="text-muted small mt-2 mb-0" data-webauthn-register-target="samsungHint" hidden>
+            {{ (samsung_hint|default('samsung_hint'))|trans({}, tid_domain) }}
+        </p>
     </div>
 </div>

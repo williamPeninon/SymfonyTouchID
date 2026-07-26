@@ -31,7 +31,8 @@ export function isAndroidDevice() {
 
 export function isSamsungDevice() {
     const ua = navigator.userAgent || '';
-    return /Samsung|SM-[A-Z0-9]+|Galaxy/i.test(ua);
+    // Chrome on Galaxy often exposes SM-XXXX; Samsung Internet adds SamsungBrowser.
+    return /Samsung|SamsungBrowser|SM-[A-Z0-9]+|Galaxy/i.test(ua);
 }
 
 export function isWindowsDevice() {
@@ -58,6 +59,8 @@ export function supportsPlatformBiometricUi() {
 /**
  * Best-effort label for the device biometric.
  * WebAuthn does not expose fingerprint vs face — we infer from the platform.
+ * On Samsung, Face recognition and fingerprint both work via Credential Manager
+ * when enrolled under Settings → Biometrics (OS picks the method at prompt).
  */
 export function preferredBiometricLabel() {
     if (isIosDevice()) {
@@ -67,15 +70,23 @@ export function preferredBiometricLabel() {
         return 'Touch ID';
     }
     if (isSamsungDevice()) {
-        return 'Samsung Fingerprint';
+        return 'Samsung Face ID';
     }
     if (isAndroidDevice()) {
-        return 'Fingerprint';
+        return 'Face / Fingerprint';
     }
     if (isWindowsDevice()) {
         return 'Windows Hello';
     }
     return 'Biometrics';
+}
+
+/** Extra register CTAs on Samsung (Face + Fingerprint), same WebAuthn platform flow. */
+export function samsungBiometricChoices() {
+    return [
+        { name: 'Samsung Face ID', label: 'Samsung Face ID' },
+        { name: 'Samsung Fingerprint', label: 'Samsung Fingerprint' },
+    ];
 }
 
 export function isWebAuthnAvailable() {

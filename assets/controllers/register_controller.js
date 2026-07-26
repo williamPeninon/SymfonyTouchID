@@ -5,6 +5,7 @@ import {
     fetchJson,
     formatWebAuthnError,
     isInvalidWebAuthnHost,
+    isSamsungDevice,
     localhostSuggestionUrl,
     preferredBiometricLabel,
     preparePublicKeyOptions,
@@ -21,7 +22,19 @@ export default class extends Controller {
         deleteUrlTemplate: String,
     };
 
-    static targets = ['panel', 'button', 'list', 'empty', 'error', 'success', 'unsupported'];
+    static targets = [
+        'panel',
+        'button',
+        'faceButton',
+        'fingerprintButton',
+        'list',
+        'empty',
+        'error',
+        'success',
+        'unsupported',
+        'samsungHint',
+        'actions',
+    ];
 
     async connect() {
         if (!supportsPlatformBiometricUi() || !isWebAuthnAvailable()) {
@@ -56,8 +69,34 @@ export default class extends Controller {
     }
 
     applyBiometricLabel() {
-        const label = preferredBiometricLabel();
         const template = this.element.dataset.addLabelTemplate || 'Ajouter %biometric%';
+
+        if (isSamsungDevice()) {
+            // Dedicated Face + Fingerprint CTAs (OS still chooses the verifier at prompt).
+            if (this.hasButtonTarget) {
+                this.buttonTarget.hidden = true;
+            }
+            if (this.hasFaceButtonTarget) {
+                this.faceButtonTarget.hidden = false;
+                const faceLabel = this.element.querySelector('[data-webauthn-register-target="faceLabel"]');
+                if (faceLabel) {
+                    faceLabel.textContent = template.replace('%biometric%', 'Samsung Face ID');
+                }
+            }
+            if (this.hasFingerprintButtonTarget) {
+                this.fingerprintButtonTarget.hidden = false;
+                const fpLabel = this.element.querySelector('[data-webauthn-register-target="fingerprintLabel"]');
+                if (fpLabel) {
+                    fpLabel.textContent = template.replace('%biometric%', 'Samsung Fingerprint');
+                }
+            }
+            if (this.hasSamsungHintTarget) {
+                this.samsungHintTarget.hidden = false;
+            }
+            return;
+        }
+
+        const label = preferredBiometricLabel();
         const text = template.replace('%biometric%', label);
         const labelEl = this.element.querySelector('[data-webauthn-register-target="addLabel"]');
         if (labelEl) {
@@ -87,7 +126,8 @@ export default class extends Controller {
     async register(event) {
         event.preventDefault();
         this.clearMessages();
-        this.setLoading(true);
+        const trigger = event.currentTarget;
+        this.setLoading(true, trigger);
 
         try {
             assertValidWebAuthnHost(this.hostErrorMessage());
@@ -101,13 +141,13 @@ export default class extends Controller {
             }
 
             const payload = {
-                name: preferredBiometricLabel(),
+                name: trigger?.dataset?.credentialName || preferredBiometricLabel(),
                 clientDataJSON: bufferToBase64Url(credential.response.clientDataJSON),
                 attestationObject: bufferToBase64Url(credential.response.attestationObject),
             };
 
             const result = await fetchJson(this.verifyUrlValue, payload);
-            this.showSuccess(result.message || this.element.dataset.successMessage || 'Empreinte enregistrée.');
+            this.showSuccess(result.message || this.element.dataset.successMessage || 'Biométrie enregistrée.');
 
             if (result.credential) {
                 this.prependCredential(result.credential);
@@ -119,7 +159,7 @@ export default class extends Controller {
                 this.showError(formatWebAuthnError(error, this.element.dataset.errorMessage) || this.element.dataset.errorMessage || 'Échec de l’enregistrement.');
             }
         } finally {
-            this.setLoading(false);
+            this.setLoading(false, trigger);
         }
     }
 
@@ -185,12 +225,17 @@ export default class extends Controller {
         this.listTarget.hidden = !hasItems;
     }
 
-    setLoading(loading) {
-        if (!this.hasButtonTarget) {
-            return;
+    setLoading(loading, trigger = null) {
+        const buttons = [
+            this.hasButtonTarget ? this.buttonTarget : null,
+            this.hasFaceButtonTarget ? this.faceButtonTarget : null,
+            this.hasFingerprintButtonTarget ? this.fingerprintButtonTarget : null,
+        ].filter(Boolean);
+
+        for (const button of buttons) {
+            button.disabled = loading;
+            button.classList.toggle('is-loading', loading && (!trigger || button === trigger));
         }
-        this.buttonTarget.disabled = loading;
-        this.buttonTarget.classList.toggle('is-loading', loading);
     }
 
     showError(message) {
