@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import '../styles/touch-id.css';
 import {
     assertValidWebAuthnHost,
     bufferToBase64Url,
@@ -181,10 +182,10 @@ export default class extends Controller {
         li.innerHTML = `
             <div class="webauthn-credential__meta">
                 <strong>${this.escapeHtml(credential.name)}</strong>
-                <span>${this.escapeHtml(credential.createdAt)}</span>
+                <span class="webauthn-credential__date">${this.escapeHtml(credential.createdAt)}</span>
             </div>
             <button type="button"
-                class="btn btn-sm btn-outline-danger"
+                class="touch-id-btn touch-id-btn--danger"
                 data-action="webauthn-register#remove"
                 data-credential-id="${credential.id}">
                 ${this.escapeHtml(this.element.dataset.deleteLabel || 'Supprimer')}

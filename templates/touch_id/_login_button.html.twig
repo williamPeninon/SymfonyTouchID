@@ -36,7 +36,7 @@
     {% if show_hint|default(true) %}
         <p class="{{ hint_class|default('auth-webauthn-hint') }}">{{ (hint_message|default('login_hint'))|trans({}, tid_domain) }}</p>
     {% endif %}
-    <div class="alert alert-danger mt-2 mb-0 py-2" data-webauthn-login-target="error" hidden></div>
+    <div class="touch-id-alert touch-id-alert--danger" data-webauthn-login-target="error" hidden></div>
     {% if show_divider|default(true) %}
         <div class="auth-divider">
             <span>{{ (or_label|default('or'))|trans({}, tid_domain) }}</span>

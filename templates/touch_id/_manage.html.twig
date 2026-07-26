@@ -5,7 +5,7 @@
 #}
 {% set tid_domain = translation_domain|default('TouchIdBundle') %}
 <div
-    class="{{ wrapper_class|default('') }}"
+    class="touch-id-manage {{ wrapper_class|default('') }}"
     data-controller="webauthn-register"
     data-webauthn-register-options-url-value="{{ path('webauthn_register_options') }}"
     data-webauthn-register-verify-url-value="{{ path('webauthn_register_verify') }}"
@@ -20,28 +20,28 @@
     data-android-message="{{ (android_message|default('android_error'))|trans({}, tid_domain) }}"
     data-add-label-template="{{ (add_label_template|default('add_template'))|trans({}, tid_domain) }}"
 >
-    <div class="alert alert-info" data-webauthn-register-target="unsupported" hidden>
+    <div class="touch-id-alert touch-id-alert--info" data-webauthn-register-target="unsupported" hidden>
         {{ (mac_only|default('mac_only'))|trans({}, tid_domain) }}
     </div>
 
-    <div data-webauthn-register-target="panel" hidden>
-        <div class="alert alert-danger" data-webauthn-register-target="error" hidden></div>
-        <div class="alert alert-success" data-webauthn-register-target="success" hidden></div>
+    <div class="touch-id-manage__panel" data-webauthn-register-target="panel" hidden>
+        <div class="touch-id-alert touch-id-alert--danger" data-webauthn-register-target="error" hidden></div>
+        <div class="touch-id-alert touch-id-alert--success" data-webauthn-register-target="success" hidden></div>
 
-        <p class="text-muted mb-3" data-webauthn-register-target="empty" {% if credentials is not empty %}hidden{% endif %}>
+        <p class="touch-id-manage__empty" data-webauthn-register-target="empty" {% if credentials is not empty %}hidden{% endif %}>
             {{ (empty_message|default('empty'))|trans({}, tid_domain) }}
         </p>
 
-        <ul class="list-unstyled mb-3" data-webauthn-register-target="list" {% if credentials is empty %}hidden{% endif %}>
+        <ul class="touch-id-manage__list" data-webauthn-register-target="list" {% if credentials is empty %}hidden{% endif %}>
             {% for credential in credentials %}
-                <li class="webauthn-credential d-flex justify-content-between align-items-center py-2 border-bottom" data-webauthn-credential-id="{{ credential.id }}">
-                    <div>
+                <li class="webauthn-credential" data-webauthn-credential-id="{{ credential.id }}">
+                    <div class="webauthn-credential__meta">
                         <strong>{{ credential.name }}</strong>
-                        <div class="small text-muted">{{ credential.createdAt|date('d/m/Y H:i') }}</div>
+                        <span class="webauthn-credential__date">{{ credential.createdAt|date('d/m/Y H:i') }}</span>
                     </div>
                     <button
                         type="button"
-                        class="btn btn-sm btn-outline-danger"
+                        class="touch-id-btn touch-id-btn--danger"
                         data-action="webauthn-register#remove"
                         data-credential-id="{{ credential.id }}"
                     >
@@ -51,17 +51,17 @@
             {% endfor %}
         </ul>
 
-        <div class="d-flex flex-wrap gap-2" data-webauthn-register-target="actions">
+        <div class="touch-id-manage__actions" data-webauthn-register-target="actions">
             <button
                 type="button"
-                class="{{ add_button_class|default('btn btn-primary') }}"
+                class="{{ add_button_class|default('touch-id-btn') }}"
                 data-webauthn-register-target="button"
                 data-action="webauthn-register#register"
             >
                 <span data-webauthn-register-target="addLabel">{{ (add_label|default('add'))|trans({}, tid_domain) }}</span>
             </button>
         </div>
-        <p class="text-muted small mt-2 mb-0" data-webauthn-register-target="samsungHint" hidden>
+        <p class="touch-id-manage__hint" data-webauthn-register-target="samsungHint" hidden>
             {{ (samsung_hint|default('samsung_hint'))|trans({}, tid_domain) }}
         </p>
     </div>

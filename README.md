@@ -164,14 +164,24 @@ Options utiles : `email_input`, `redirect_url`, `button_class`, `show_hint`, `sh
 
 ```twig
 {% include '@TouchId/touch_id/_manage.html.twig' with {
-    credentials: touch_id_credentials(app.user),
-    add_button_class: 'btn btn-primary'
+    credentials: touch_id_credentials(app.user)
 } %}
 ```
 
-### 11. CSS (hôte)
+### 11. CSS
 
-Le bundle n’embarque pas de CSS. Styles à prévoir pour `.auth-webauthn-btn`, `.auth-webauthn-hint`, `.auth-divider` (ou passez vos classes via les options des partials).
+Styles par défaut embarqués (`assets/styles/touch-id.css`), chargés avec les contrôleurs Stimulus (import + `autoimport`).
+
+Personnalisation via variables CSS sur `.webauthn-login` / `.touch-id-manage` :
+
+```css
+.touch-id-manage {
+    --tid-accent: #0f766e;
+    --tid-ink: #1a2332;
+}
+```
+
+Ou remplacez les classes via les options Twig (`button_class`, `add_button_class`, `wrapper_class`, …).
 
 ---
 
@@ -188,7 +198,7 @@ Le bundle n’embarque pas de CSS. Styles à prévoir pour `.auth-webauthn-btn`,
 | 7 | `doctrine:migrations:diff` + `migrate` | Non |
 | 8 | `controllers.json` Stimulus | Non |
 | 9–10 | Includes Twig login + compte | Non |
-| 11 | CSS | Non |
+| 11 | CSS (embarqué + overridable) | Oui (via Stimulus) |
 
 ---
 

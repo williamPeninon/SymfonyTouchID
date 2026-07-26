@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import '../styles/touch-id.css';
 import {
     assertValidWebAuthnHost,
     bufferToBase64Url,

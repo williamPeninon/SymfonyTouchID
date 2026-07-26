@@ -1,6 +1,6 @@
 {
     "name": "@wpconsulting/touch-id-bundle",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "WebAuthn / passkey Stimulus controllers (Touch ID, Face ID, Samsung fingerprint, Windows Hello)",
     "type": "module",
     "symfony": {
@@ -9,13 +9,19 @@
                 "main": "controllers/login_controller.js",
                 "name": "webauthn-login",
                 "fetch": "lazy",
-                "enabled": true
+                "enabled": true,
+                "autoimport": {
+                    "@wpconsulting/touch-id-bundle/styles/touch-id.css": true
+                }
             },
             "register": {
                 "main": "controllers/register_controller.js",
                 "name": "webauthn-register",
                 "fetch": "lazy",
-                "enabled": true
+                "enabled": true,
+                "autoimport": {
+                    "@wpconsulting/touch-id-bundle/styles/touch-id.css": true
+                }
             }
         },
         "importmap": {

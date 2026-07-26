@@ -1,0 +1,279 @@
+/* Default styles for @TouchId partials — scoped, override via CSS variables. */
+.webauthn-login,
+.touch-id-manage {
+    --tid-ink: #1a2332;
+    --tid-muted: #5c6b7a;
+    --tid-surface: #eef3f6;
+    --tid-surface-strong: #e2eaf0;
+    --tid-accent: #0f766e;
+    --tid-accent-hover: #0d9488;
+    --tid-accent-soft: color-mix(in srgb, var(--tid-accent) 12%, white);
+    --tid-danger: #b42318;
+    --tid-danger-soft: #fef3f2;
+    --tid-ok: #067647;
+    --tid-ok-soft: #ecfdf3;
+    --tid-info: #175cd3;
+    --tid-info-soft: #eff8ff;
+    --tid-border: #d0dae3;
+    --tid-radius: 10px;
+    --tid-font: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    --tid-shadow: 0 1px 2px rgb(26 35 50 / 6%), 0 8px 24px rgb(26 35 50 / 6%);
+
+    box-sizing: border-box;
+    font-family: var(--tid-font);
+    color: var(--tid-ink);
+    line-height: 1.45;
+}
+
+.webauthn-login *,
+.webauthn-login *::before,
+.webauthn-login *::after,
+.touch-id-manage *,
+.touch-id-manage *::before,
+.touch-id-manage *::after {
+    box-sizing: border-box;
+}
+
+/* —— Login —— */
+.webauthn-login {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.webauthn-login .auth-webauthn-btn,
+.touch-id-manage .touch-id-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.7rem 1.15rem;
+    border: 1px solid transparent;
+    border-radius: var(--tid-radius);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tid-accent-hover) 18%, var(--tid-accent)), var(--tid-accent));
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: var(--tid-shadow);
+    transition: background 160ms ease, transform 120ms ease, box-shadow 160ms ease, opacity 120ms ease;
+}
+
+.webauthn-login .auth-webauthn-btn:hover,
+.touch-id-manage .touch-id-btn:hover {
+    background: var(--tid-accent-hover);
+}
+
+.webauthn-login .auth-webauthn-btn:active,
+.touch-id-manage .touch-id-btn:active {
+    transform: translateY(1px);
+}
+
+.webauthn-login .auth-webauthn-btn:disabled,
+.touch-id-manage .touch-id-btn:disabled,
+.touch-id-manage .touch-id-btn--danger:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.webauthn-login .auth-webauthn-btn.is-loading,
+.touch-id-manage .touch-id-btn.is-loading {
+    position: relative;
+    color: transparent;
+}
+
+.webauthn-login .auth-webauthn-btn.is-loading::after,
+.touch-id-manage .touch-id-btn.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid rgb(255 255 255 / 35%);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: tid-spin 0.7s linear infinite;
+}
+
+.webauthn-login .auth-webauthn-hint {
+    margin: 0;
+    color: var(--tid-muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.webauthn-login .auth-divider {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0 0;
+    color: var(--tid-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.webauthn-login .auth-divider::before,
+.webauthn-login .auth-divider::after {
+    content: "";
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--tid-border), transparent);
+}
+
+.webauthn-login .auth-divider span {
+    padding: 0 0.15rem;
+}
+
+.webauthn-login .touch-id-alert,
+.touch-id-manage .touch-id-alert {
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--tid-border);
+    border-radius: calc(var(--tid-radius) - 2px);
+    background: var(--tid-surface);
+    color: var(--tid-ink);
+    font-size: 0.9rem;
+}
+
+.webauthn-login .touch-id-alert--danger,
+.touch-id-manage .touch-id-alert--danger {
+    border-color: color-mix(in srgb, var(--tid-danger) 28%, white);
+    background: var(--tid-danger-soft);
+    color: var(--tid-danger);
+}
+
+.webauthn-login .touch-id-alert--success,
+.touch-id-manage .touch-id-alert--success {
+    border-color: color-mix(in srgb, var(--tid-ok) 28%, white);
+    background: var(--tid-ok-soft);
+    color: var(--tid-ok);
+}
+
+.touch-id-manage .touch-id-alert--info {
+    border-color: color-mix(in srgb, var(--tid-info) 28%, white);
+    background: var(--tid-info-soft);
+    color: var(--tid-info);
+}
+
+/* —— Manage / register —— */
+.touch-id-manage {
+    display: grid;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--tid-border);
+    border-radius: calc(var(--tid-radius) + 4px);
+    background:
+        linear-gradient(165deg, #fff 0%, var(--tid-surface) 100%);
+    box-shadow: var(--tid-shadow);
+}
+
+.touch-id-manage__panel {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.touch-id-manage__empty,
+.touch-id-manage__hint {
+    margin: 0;
+    color: var(--tid-muted);
+    font-size: 0.9rem;
+}
+
+.touch-id-manage__hint {
+    font-size: 0.8rem;
+}
+
+.touch-id-manage__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--tid-border);
+    border-radius: var(--tid-radius);
+    overflow: hidden;
+    background: #fff;
+}
+
+.touch-id-manage .webauthn-credential {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--tid-border);
+}
+
+.touch-id-manage .webauthn-credential:last-child {
+    border-bottom: 0;
+}
+
+.touch-id-manage .webauthn-credential__meta {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.touch-id-manage .webauthn-credential__meta strong {
+    font-weight: 600;
+    color: var(--tid-ink);
+}
+
+.touch-id-manage .webauthn-credential__meta span,
+.touch-id-manage .webauthn-credential__date {
+    color: var(--tid-muted);
+    font-size: 0.8rem;
+}
+
+.touch-id-manage .touch-id-btn--danger {
+    width: auto;
+    min-height: 2rem;
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    border-color: color-mix(in srgb, var(--tid-danger) 35%, white);
+    color: var(--tid-danger);
+    box-shadow: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.touch-id-manage .touch-id-btn--danger:hover {
+    background: var(--tid-danger-soft);
+    border-color: var(--tid-danger);
+}
+
+.touch-id-manage__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.touch-id-manage__actions .touch-id-btn {
+    width: auto;
+    min-width: 12rem;
+}
+
+@keyframes tid-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 480px) {
+    .touch-id-manage .webauthn-credential {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .touch-id-manage__actions .touch-id-btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
