@@ -77,8 +77,8 @@ class TouchIdManager
 
         $args = $webAuthn->getCreateArgs(
             $this->userHandleFor($user),
-            (string) $user->getEmail(),
-            $user->getTouchIdDisplayName(),
+            (string) $user->getUserName(),
+            $user->getUserDisplayName(),
             120,
             'preferred',
             'preferred', // Android Credential Manager is more reliable with preferred than required
@@ -208,7 +208,7 @@ class TouchIdManager
     public function deleteCredential(TouchIdUserInterface $user, int $credentialId): bool
     {
         $credential = $this->credentialRepository->find($credentialId);
-        if (!$credential || !$this->sameUserId($credential->getUser()?->getId(), $user->getId())) {
+        if (!$credential || !$this->sameUserId($credential->getUser()?->getUserId(), $user->getUserId())) {
             return false;
         }
 
@@ -228,7 +228,7 @@ class TouchIdManager
 
     private function userHandleFor(TouchIdUserInterface $user): string
     {
-        return 'user:' . $this->stringifyId($user->getId());
+        return 'user:' . $this->stringifyId($user->getUserId());
     }
 
     private function sameUserId(mixed $a, mixed $b): bool

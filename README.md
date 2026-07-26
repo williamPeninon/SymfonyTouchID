@@ -94,9 +94,19 @@ use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
 
 class User implements UserInterface, TouchIdUserInterface
 {
-    public function getTouchIdDisplayName(): string
+    public function getUserId(): mixed
     {
-        return $this->getFullName() ?: (string) $this->getEmail();
+        return $this->id;
+    }
+
+    public function getUserName(): ?string
+    {
+        return $this->email;
+    }
+
+    public function getUserDisplayName(): string
+    {
+        return $this->getFullName() ?: (string) $this->getUserName();
     }
 }
 ```

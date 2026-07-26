@@ -8,9 +8,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 interface TouchIdUserInterface extends UserInterface
 {
-    public function getId(): mixed;
+    public function getUserId(): mixed;
 
-    public function getEmail(): ?string;
+    public function getUserName(): ?string;
 
-    public function getTouchIdDisplayName(): string;
+    public function getUserDisplayName(): string;
 }
