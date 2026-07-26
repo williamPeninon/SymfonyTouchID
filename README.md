@@ -73,9 +73,10 @@ wp_consulting_touch_id:
     email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'
 ```
 
-> `user_class` doit être le **FQCN de la classe User** (ex. `App\Entity\User` ou `App\Iam\Auth\Entity\User`), pas un namespace. Un compiler pass alias Doctrine `TouchIdUserInterface` → cette classe pour la FK / `migrations:diff`.
+> `user_class` doit être le **FQCN de la classe User** (ex. `App\Entity\User` ou `App\Iam\Auth\Entity\User`), pas un namespace.
+> Un listener Doctrine (`ResolveTouchIdUserListener`) réécrit `WebAuthnCredential::$user` de `TouchIdUserInterface` vers cette classe (FK / `schema:validate` / `migrations:diff`).
 >
-> Si `user_class` est absent ou ne pointe pas vers une classe qui implémente `TouchIdUserInterface`, le bundle **ne câble pas** ses services : `asset-map:compile` et `cache:clear` restent possibles.
+> Si `user_class` est absent ou ne pointe pas vers une classe qui implémente `TouchIdUserInterface`, le bundle **ne câble pas** ses services métier : `asset-map:compile` et `cache:clear` restent possibles. Le resolve Doctrine s’active dès que `user_class` est renseigné.
 >
 > Plus besoin de repository custom : le bundle utilise `EntityManagerInterface::getRepository(user_class)`.
 

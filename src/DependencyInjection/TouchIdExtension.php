@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace WpConsulting\TouchIdBundle\DependencyInjection;
 
+use Doctrine\ORM\Events;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
 use WpConsulting\TouchIdBundle\Controller\TouchIdController;
+use WpConsulting\TouchIdBundle\Doctrine\ResolveTouchIdUserListener;
 use WpConsulting\TouchIdBundle\Service\TouchIdManager;
 use WpConsulting\TouchIdBundle\Twig\TouchIdTwigExtension;
 
@@ -22,13 +25,18 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
         $configured = $this->isFullyConfigured($config);
+        $userClass = $config['user_class'] ?? null;
 
         $container->setParameter('wp_consulting_touch_id.configured', $configured);
-        $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class'] ?? null);
+        $container->setParameter('wp_consulting_touch_id.user_class', $userClass);
 
-        // Doctrine alias TouchIdUserInterface → user_class is applied in ResolveTouchIdUserTargetEntityPass.
+        // Register as soon as user_class is set (even before User implements the interface),
+        // so doctrine:schema:validate / migrations:diff can resolve the ManyToOne FK.
+        if (\is_string($userClass) && $userClass !== '') {
+            $this->registerResolveTouchIdUserListener($container, $userClass);
+        }
 
-        // Allow the host app to boot (asset-map:compile, cache:clear) before User exists.
+        // Allow the host app to boot (asset-map:compile, cache:clear) before User is ready.
         if (!$configured) {
             return;
         }
@@ -66,9 +74,28 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         }
     }
 
+    private function registerResolveTouchIdUserListener(ContainerBuilder $container, string $userClass): void
+    {
+        if ($container->hasDefinition('touch_id.doctrine.resolve_target_user')) {
+            return;
+        }
+
+        $definition = new Definition(ResolveTouchIdUserListener::class);
+        $definition->setArgument('$userClass', $userClass);
+        $definition->setPublic(false);
+        $definition->addTag('doctrine.event_listener', [
+            'event' => Events::loadClassMetadata,
+            'priority' => 256,
+        ]);
+        $definition->addTag('doctrine.event_listener', [
+            'event' => Events::onClassMetadataNotFound,
+            'priority' => 256,
+        ]);
+
+        $container->setDefinition('touch_id.doctrine.resolve_target_user', $definition);
+    }
+
     /**
-     * Skeleton placeholders (App\…) must not wire services until the class exists.
-     *
      * @param array<string, mixed> $config
      */
     private function isFullyConfigured(array $config): bool
@@ -87,9 +114,8 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $config = $this->processConfiguration(new Configuration(), $configs);
         $bundleRoot = \dirname(__DIR__, 2);
 
-        // Official DoctrineBundle path: enables ResolveTargetEntityListener tags in DoctrineExtension.
-        // (Compiler pass is a fallback with correct priority.)
-        if (!empty($config['user_class']) && class_exists($config['user_class'])) {
+        // Also feed DoctrineBundle's built-in resolver (no class_exists gate: FQCN is enough).
+        if (!empty($config['user_class']) && \is_string($config['user_class'])) {
             $container->prependExtensionConfig('doctrine', [
                 'orm' => [
                     'resolve_target_entities' => [
