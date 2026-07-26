@@ -208,7 +208,7 @@ class TouchIdManager
     public function deleteCredential(TouchIdUserInterface $user, int $credentialId): bool
     {
         $credential = $this->credentialRepository->find($credentialId);
-        if (!$credential || $credential->getUser()?->getId() !== $user->getId()) {
+        if (!$credential || !$this->sameUserId($credential->getUser()?->getId(), $user->getId())) {
             return false;
         }
 
@@ -228,7 +228,29 @@ class TouchIdManager
 
     private function userHandleFor(TouchIdUserInterface $user): string
     {
-        return 'user:' . $user->getId();
+        return 'user:' . $this->stringifyId($user->getId());
+    }
+
+    private function sameUserId(mixed $a, mixed $b): bool
+    {
+        if ($a === null || $b === null) {
+            return false;
+        }
+
+        return $this->stringifyId($a) === $this->stringifyId($b);
+    }
+
+    private function stringifyId(mixed $id): string
+    {
+        if (\is_string($id) || \is_int($id)) {
+            return (string) $id;
+        }
+
+        if (\is_object($id) && ($id instanceof \Stringable || method_exists($id, '__toString'))) {
+            return (string) $id;
+        }
+
+        throw new \InvalidArgumentException('User id must be stringable (int, string or Uuid).');
     }
 
     private function storeChallenge(string $key, ByteBuffer $challenge): void

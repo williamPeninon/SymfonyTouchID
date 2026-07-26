@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 interface TouchIdUserInterface extends UserInterface
 {
-    public function getId(): ?int;
+    public function getId(): mixed;
 
     public function getEmail(): ?string;
 
