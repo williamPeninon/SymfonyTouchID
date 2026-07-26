@@ -3,11 +3,12 @@ import {
     assertValidWebAuthnHost,
     bufferToBase64Url,
     fetchJson,
+    isAppleBiometricDevice,
     isInvalidWebAuthnHost,
-    isMacPlatform,
     isPlatformAuthenticatorAvailable,
     isWebAuthnAvailable,
     localhostSuggestionUrl,
+    preferredBiometricLabel,
     preparePublicKeyOptions,
 } from '../helpers.js';
 
@@ -21,7 +22,7 @@ export default class extends Controller {
     static targets = ['button', 'error', 'divider'];
 
     async connect() {
-        if (!isMacPlatform() || !isWebAuthnAvailable()) {
+        if (!isAppleBiometricDevice() || !isWebAuthnAvailable()) {
             this.element.hidden = true;
             return;
         }
@@ -33,16 +34,26 @@ export default class extends Controller {
         }
 
         this.element.hidden = false;
+        this.applyBiometricLabel();
 
         if (isInvalidWebAuthnHost()) {
             this.showError(this.hostErrorMessage());
         }
     }
 
+    applyBiometricLabel() {
+        const label = preferredBiometricLabel();
+        const labelEl = this.element.querySelector('[data-webauthn-login-target="label"]');
+        if (labelEl) {
+            const template = this.element.dataset.loginLabelTemplate || 'Se connecter avec %biometric%';
+            labelEl.textContent = template.replace('%biometric%', label);
+        }
+    }
+
     hostErrorMessage() {
         return this.element.dataset.hostMessage
             ? `${this.element.dataset.hostMessage} ${localhostSuggestionUrl()}`
-            : `Touch ID nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
+            : `${preferredBiometricLabel()} nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
     }
 
     async login(event) {

@@ -1,6 +1,6 @@
 # WP Consulting Touch ID Bundle
 #
-# Symfony bundle for Mac Touch ID / platform WebAuthn (passkeys).
+# Symfony bundle for Apple Face ID & Touch ID via platform WebAuthn (passkeys).
 
 ## Installation (Packagist)
 
@@ -115,6 +115,13 @@ Manage fingerprints (authenticated account page):
 ```
 
 Or inject `TouchIdManager` in your controller and pass `webAuthnCredentials`.
+
+## Supported devices
+
+- **Mac** → Touch ID
+- **iPhone / iPad** → Face ID (or Touch ID on older devices)
+
+The OS chooses Face ID or Touch ID automatically; WebAuthn uses the same platform authenticator API.
 
 ## Local development note
 

@@ -34,7 +34,7 @@ class WebAuthnCredential
     private int $signCount = 0;
 
     #[ORM\Column(length: 100)]
-    private string $name = 'Touch ID';
+    private string $name = 'Face ID / Touch ID';
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $aaguid = null;

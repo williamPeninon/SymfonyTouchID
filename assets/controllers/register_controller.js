@@ -3,11 +3,12 @@ import {
     assertValidWebAuthnHost,
     bufferToBase64Url,
     fetchJson,
+    isAppleBiometricDevice,
     isInvalidWebAuthnHost,
-    isMacPlatform,
     isPlatformAuthenticatorAvailable,
     isWebAuthnAvailable,
     localhostSuggestionUrl,
+    preferredBiometricLabel,
     preparePublicKeyOptions,
 } from '../helpers.js';
 
@@ -22,7 +23,7 @@ export default class extends Controller {
     static targets = ['panel', 'button', 'list', 'empty', 'error', 'success', 'unsupported'];
 
     async connect() {
-        if (!isMacPlatform() || !isWebAuthnAvailable()) {
+        if (!isAppleBiometricDevice() || !isWebAuthnAvailable()) {
             this.showUnsupported();
             return;
         }
@@ -50,12 +51,27 @@ export default class extends Controller {
         if (this.hasUnsupportedTarget) {
             this.unsupportedTarget.hidden = true;
         }
+        this.applyBiometricLabel();
+    }
+
+    applyBiometricLabel() {
+        const label = preferredBiometricLabel();
+        const template = this.element.dataset.addLabelTemplate || 'Ajouter %biometric%';
+        const text = template.replace('%biometric%', label);
+        const labelEl = this.element.querySelector('[data-webauthn-register-target="addLabel"]');
+        if (labelEl) {
+            labelEl.textContent = text;
+            return;
+        }
+        if (this.hasButtonTarget) {
+            this.buttonTarget.textContent = text;
+        }
     }
 
     hostErrorMessage() {
         return this.element.dataset.hostMessage
             ? `${this.element.dataset.hostMessage} ${localhostSuggestionUrl()}`
-            : `Touch ID nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
+            : `${preferredBiometricLabel()} nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
     }
 
     showUnsupported() {
@@ -84,7 +100,7 @@ export default class extends Controller {
             }
 
             const payload = {
-                name: 'Touch ID',
+                name: preferredBiometricLabel(),
                 clientDataJSON: bufferToBase64Url(credential.response.clientDataJSON),
                 attestationObject: bufferToBase64Url(credential.response.attestationObject),
             };

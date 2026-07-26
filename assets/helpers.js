@@ -1,11 +1,46 @@
 /**
- * WebAuthn / Touch ID helpers (Mac platform authenticator).
+ * WebAuthn helpers for Apple biometrics (Touch ID on Mac, Face ID / Touch ID on iPhone & iPad).
  */
 
 export function isMacPlatform() {
     const ua = navigator.userAgent || '';
     const platform = navigator.platform || navigator.userAgentData?.platform || '';
-    return /Mac|Macintosh/.test(platform) || /Macintosh/.test(ua);
+    // iPadOS desktop mode reports as Mac — exclude real iPads via touch points.
+    const looksMac = /Mac|Macintosh/.test(platform) || /Macintosh/.test(ua);
+    const isIpadDesktop = looksMac && navigator.maxTouchPoints > 1;
+    return looksMac && !isIpadDesktop;
+}
+
+export function isIosDevice() {
+    const ua = navigator.userAgent || '';
+    const platform = navigator.platform || navigator.userAgentData?.platform || '';
+    if (/iPhone|iPod/.test(platform) || /iPhone|iPod/.test(ua)) {
+        return true;
+    }
+    if (/iPad/.test(platform) || /iPad/.test(ua)) {
+        return true;
+    }
+    // iPadOS 13+ desktop mode
+    return /Mac|Macintosh/.test(platform) && navigator.maxTouchPoints > 1;
+}
+
+/** Mac (Touch ID) or iPhone/iPad (Face ID / Touch ID). */
+export function isAppleBiometricDevice() {
+    return isMacPlatform() || isIosDevice();
+}
+
+/**
+ * Best-effort label for the device biometric.
+ * WebAuthn does not expose Face ID vs Touch ID — we infer from the platform.
+ */
+export function preferredBiometricLabel() {
+    if (isIosDevice()) {
+        return 'Face ID';
+    }
+    if (isMacPlatform()) {
+        return 'Touch ID';
+    }
+    return 'Face ID / Touch ID';
 }
 
 export function isWebAuthnAvailable() {
@@ -29,7 +64,7 @@ export function assertValidWebAuthnHost(message) {
     if (!isInvalidWebAuthnHost()) {
         return;
     }
-    const fallback = `Touch ID nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
+    const fallback = `${preferredBiometricLabel()} nécessite localhost. Ouvrez ${localhostSuggestionUrl()}`;
     throw new Error(message || fallback);
 }
 

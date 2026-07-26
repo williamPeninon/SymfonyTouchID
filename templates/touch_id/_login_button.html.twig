@@ -12,6 +12,7 @@
     data-error-message="{{ (error_message|default('account.webauthn.login_failed'))|trans }}"
     data-host-message="{{ (host_message|default('account.webauthn.invalid_host'))|trans }}"
     data-no-passkey-message="{{ (no_passkey_message|default('account.webauthn.login_no_passkey'))|trans }}"
+    data-login-label-template="{{ (login_label_template|default('account.webauthn.login_template'))|trans }}"
     hidden
 >
     <button
@@ -20,7 +21,7 @@
         data-webauthn-login-target="button"
         data-action="webauthn-login#login"
     >
-        <span>{{ (login_label|default('account.webauthn.login'))|trans }}</span>
+        <span data-webauthn-login-target="label">{{ (login_label|default('account.webauthn.login'))|trans }}</span>
     </button>
     {% if show_hint|default(true) %}
         <p class="{{ hint_class|default('auth-webauthn-hint') }}">{{ (hint_message|default('account.webauthn.login_hint'))|trans }}</p>

@@ -34,7 +34,17 @@ class TouchIdManager
 
     public function resolveRpId(Request $request): string
     {
-        $host = strtolower(trim($request->getHost()));
+        // Prefer the public host (ngrok / reverse proxy) over an internal rewritten Host.
+        $host = $request->headers->get('X-Forwarded-Host') ?: $request->getHost();
+        if (str_contains((string) $host, ',')) {
+            $host = trim(explode(',', (string) $host, 2)[0]);
+        }
+        // Strip optional port (WebAuthn rpId must be a hostname only).
+        if (str_contains((string) $host, ':') && !str_starts_with((string) $host, '[')) {
+            $host = explode(':', (string) $host, 2)[0];
+        }
+
+        $host = strtolower(trim((string) $host));
 
         if ($host === '') {
             return 'localhost';
@@ -43,9 +53,9 @@ class TouchIdManager
         // WebAuthn rejects IP addresses as rpId ("This is an invalid domain").
         if ($host === '127.0.0.1' || $host === '::1' || filter_var($host, \FILTER_VALIDATE_IP)) {
             throw new \RuntimeException(
-                'Touch ID does not work with an IP address. Open the site via http://localhost'
+                'Biometrics do not work with an IP address. Open the site via http://localhost'
                 . ($request->getPort() && !\in_array($request->getPort(), [80, 443], true) ? ':' . $request->getPort() : '')
-                . ' (not 127.0.0.1).'
+                . ' (not 127.0.0.1), or use an HTTPS public hostname (e.g. ngrok).'
             );
         }
 

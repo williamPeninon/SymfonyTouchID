@@ -16,6 +16,7 @@
     data-confirm-delete="{{ (confirm_delete|default('account.webauthn.confirm_delete'))|trans }}"
     data-delete-label="{{ (delete_label|default('account.webauthn.delete'))|trans }}"
     data-host-message="{{ (host_message|default('account.webauthn.invalid_host'))|trans }}"
+    data-add-label-template="{{ (add_label_template|default('account.webauthn.add_template'))|trans }}"
 >
     <div class="alert alert-info" data-webauthn-register-target="unsupported" hidden>
         {{ (mac_only|default('account.webauthn.mac_only'))|trans }}
@@ -54,7 +55,7 @@
             data-webauthn-register-target="button"
             data-action="webauthn-register#register"
         >
-            {{ (add_label|default('account.webauthn.add'))|trans }}
+            <span data-webauthn-register-target="addLabel">{{ (add_label|default('account.webauthn.add'))|trans }}</span>
         </button>
     </div>
 </div>
