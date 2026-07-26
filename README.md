@@ -10,15 +10,19 @@ Bundle Symfony pour la connexion sans mot de passe via **WebAuthn / passkeys** s
 
 ---
 
-## Installation (Packagist)
+## Ce que le bundle fait / ne fait pas
 
-```bash
-composer require wpconsulting/touch-id-bundle
-```
+**Fourni out of the box :** WebAuthn (manager, entity, routes API), Stimulus, partials Twig, traductions CTA (`TouchIdBundle`), helpers Twig, commande `touch-id:install`, recipe Flex.
 
-### Recipe Flex (recommandée)
+**Pas 100 % plug-and-play :** il reste un **wiring** côté app (User, security, includes Twig, Stimulus). Comptez ~10–15 min.
 
-Le dépôt embarque une recipe sous `flex/`. Dans le `composer.json` de **votre application** :
+---
+
+## Wiring (checklist d’installation)
+
+### 1. Endpoint Flex (recommandé)
+
+Dans le `composer.json` de **l’application** :
 
 ```json
 {
@@ -33,40 +37,39 @@ Le dépôt embarque une recipe sous `flex/`. Dans le `composer.json` de **votre 
 }
 ```
 
-Puis `composer require wpconsulting/touch-id-bundle` : Flex enregistre le bundle, copie `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml`.
+### 2. Composer
 
-Sans Flex, enregistrez le bundle à la main :
+```bash
+composer require wpconsulting/touch-id-bundle
+```
+
+Avec Flex : bundle enregistré + copie de `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml`.
+
+Sans Flex, ajoutez à la main :
 
 ```php
 // config/bundles.php
 WpConsulting\TouchIdBundle\TouchIdBundle::class => ['all' => true],
 ```
 
-### Schéma base de données
-
-```bash
-php bin/console touch-id:install
-# ou : php bin/console touch-id:install --dump-sql
-# ou : SQL de référence dans Resources/schema.sql
-# ou : migration Flex flex/.../migrations/Version20260726210000.php (adapter la FK user)
-```
-
-## Configuration
+### 3. Config YAML
 
 ```yaml
 # config/packages/wp_consulting_touch_id.yaml
 wp_consulting_touch_id:
-    user_class: App\Entity\User
-    user_repository: App\Repository\UserRepository
+    user_class: App\Entity\User                                          # obligatoire
+    user_repository: App\Repository\UserRepository                       # obligatoire
     rp_name: 'My App'
     login_authenticator: form_login
     default_redirect_route: app_account
-    success_handler: App\Security\LoginSuccessHandler # optionnel
+    success_handler: App\Security\LoginSuccessHandler                    # optionnel
     translation_domain: TouchIdBundle
     translation_prefix: ''
-    # Sélecteurs CSS du champ email sur la page login (découplé du formulaire hôte)
+    # Si le champ email login n’est pas #username, adaptez :
     email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'
 ```
+
+### 4. Routes
 
 ```yaml
 # config/routes/touch_id.yaml
@@ -74,15 +77,15 @@ touch_id:
     resource: '@TouchIdBundle/config/routes.yaml'
 ```
 
+### 5. Security
+
 ```yaml
 # config/packages/security.yaml
 access_control:
     - { path: ^/webauthn/login, roles: PUBLIC_ACCESS }
 ```
 
-
-
-## User & repository
+### 6. User
 
 ```php
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
@@ -95,6 +98,8 @@ class User implements UserInterface, TouchIdUserInterface
     }
 }
 ```
+
+### 7. UserRepository
 
 ```php
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserRepositoryInterface;
@@ -111,20 +116,20 @@ class UserRepository extends ServiceEntityRepository implements TouchIdUserRepos
 }
 ```
 
-
-
-## Base de données
+### 8. Base de données
 
 ```bash
-php bin/console doctrine:migrations:diff
-php bin/console doctrine:migrations:migrate
+php bin/console touch-id:install
+# alternatives :
+#   php bin/console touch-id:install --dump-sql
+#   Resources/schema.sql
+#   migration Flex : flex/wpconsulting/touch-id-bundle/1.4/migrations/ (adapter la FK user)
 ```
 
-
-
-## Stimulus
+### 9. Stimulus
 
 ```json
+// assets/controllers.json
 {
     "controllers": {
         "@wpconsulting/touch-id-bundle": {
@@ -135,34 +140,60 @@ php bin/console doctrine:migrations:migrate
 }
 ```
 
+### 10. Twig — page login
 
+```twig
+{% include '@TouchId/touch_id/_login_button.html.twig' %}
+```
 
-## Twig
+Options utiles : `email_input`, `redirect_url`, `button_class`, `show_hint`, `show_divider`.
 
-Helpers fournis par le bundle :
+### 11. Twig — page compte (enregistrement de la passkey)
+
+```twig
+{% include '@TouchId/touch_id/_manage.html.twig' with {
+    credentials: touch_id_credentials(app.user),
+    add_button_class: 'btn btn-primary'
+} %}
+```
+
+### 12. CSS (hôte)
+
+Le bundle n’embarque pas de CSS. Styles à prévoir pour `.auth-webauthn-btn`, `.auth-webauthn-hint`, `.auth-divider` (ou passez vos classes via les options des partials).
+
+---
+
+## Récap wiring
+
+| # | Étape | Auto Flex ? |
+|---|---|---|
+| 1 | Endpoint Flex dans `composer.json` | — (une fois) |
+| 2 | `composer require` | — |
+| 3 | YAML `user_class` / `user_repository` / … | Fichier copié, **à remplir** |
+| 4 | Import routes | Oui (fichier copié) |
+| 5 | `access_control` `/webauthn/login` | Non |
+| 6 | `TouchIdUserInterface` sur User | Non |
+| 7 | `TouchIdUserRepositoryInterface` sur le repo | Non |
+| 8 | `touch-id:install` | Non |
+| 9 | `controllers.json` Stimulus | Non |
+| 10–11 | Includes Twig login + compte | Non |
+| 12 | CSS | Non |
+
+---
+
+## Helpers Twig
 
 | Helper | Description |
 |---|---|
 | `touch_id_manager` (global) | Service `TouchIdManager` |
-| `touch_id_credentials(user)` | Liste des credentials de l’utilisateur |
+| `touch_id_credentials(user)` | Liste des credentials |
 | `touch_id_redirect_path` (global / fonction) | URL de redirect post-login |
 | `touch_id_email_input_selector` (global) | Sélecteurs CSS email login |
+| `touch_id_translation_domain` (global) | Domaine de traduction |
 
-```twig
-{# Login — email_input / redirect_url optionnels #}
-{% include '@TouchId/touch_id/_login_button.html.twig' %}
-
-{# Compte #}
-{% include '@TouchId/touch_id/_manage.html.twig' with {
-    credentials: touch_id_credentials(app.user)
-} %}
-```
-
-Traductions CTA embarquées : domaine `TouchIdBundle` (`fr`, `en`, `es`, `de`).
+Traductions CTA : domaine `TouchIdBundle` (`fr`, `en`, `es`, `de`).
 
 ---
-
-
 
 ## Comment ça marche (WebAuthn)
 
