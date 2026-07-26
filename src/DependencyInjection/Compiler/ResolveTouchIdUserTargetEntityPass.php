@@ -22,7 +22,7 @@ final class ResolveTouchIdUserTargetEntityPass implements CompilerPassInterface
         }
 
         $userClass = $container->getParameter('wp_consulting_touch_id.user_class');
-        if (!\is_string($userClass) || $userClass === '') {
+        if (!\is_string($userClass) || $userClass === '' || !class_exists($userClass)) {
             return;
         }
 

@@ -6,6 +6,7 @@ namespace WpConsulting\TouchIdBundle\DependencyInjection;
 
 use Doctrine\ORM\Events;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -24,15 +25,20 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
-        $configured = $this->isFullyConfigured($config);
         $userClass = $config['user_class'] ?? null;
+
+        if (\is_string($userClass) && $userClass !== '') {
+            $this->assertValidUserClass($userClass);
+        }
+
+        $configured = $this->isFullyConfigured($config);
 
         $container->setParameter('wp_consulting_touch_id.configured', $configured);
         $container->setParameter('wp_consulting_touch_id.user_class', $userClass);
 
-        // Register as soon as user_class is set (even before User implements the interface),
+        // Register as soon as user_class is a real class (even before it implements the interface),
         // so doctrine:schema:validate / migrations:diff can resolve the ManyToOne FK.
-        if (\is_string($userClass) && $userClass !== '') {
+        if (\is_string($userClass) && $userClass !== '' && class_exists($userClass)) {
             $this->registerResolveTouchIdUserListener($container, $userClass);
         }
 
@@ -95,6 +101,19 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $container->setDefinition('touch_id.doctrine.resolve_target_user', $definition);
     }
 
+    private function assertValidUserClass(string $userClass): void
+    {
+        if (class_exists($userClass)) {
+            return;
+        }
+
+        throw new InvalidConfigurationException(sprintf(
+            'wp_consulting_touch_id.user_class "%s" is not an existing PHP class. '
+            .'Use the full entity FQCN (e.g. App\\Iam\\Auth\\Entity\\User), not a namespace like App\\Iam\\Auth\\Entity.',
+            $userClass,
+        ));
+    }
+
     /**
      * @param array<string, mixed> $config
      */
@@ -114,8 +133,8 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $config = $this->processConfiguration(new Configuration(), $configs);
         $bundleRoot = \dirname(__DIR__, 2);
 
-        // Also feed DoctrineBundle's built-in resolver (no class_exists gate: FQCN is enough).
-        if (!empty($config['user_class']) && \is_string($config['user_class'])) {
+        // Also feed DoctrineBundle's built-in resolver when the FQCN exists.
+        if (!empty($config['user_class']) && \is_string($config['user_class']) && class_exists($config['user_class'])) {
             $container->prependExtensionConfig('doctrine', [
                 'orm' => [
                     'resolve_target_entities' => [
