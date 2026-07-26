@@ -11,8 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
@@ -34,10 +32,12 @@ final class TouchIdController
     ) {}
 
     #[Route('/webauthn/register/options', name: 'webauthn_register_options', methods: ['POST'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function registerOptions(Request $request): JsonResponse
     {
-        $user = $this->requireTouchIdUser();
+        $user = $this->touchIdUserOrError();
+        if ($user instanceof JsonResponse) {
+            return $user;
+        }
 
         try {
             return new JsonResponse($this->touchIdManager->getRegistrationOptions($user, $request));
@@ -47,10 +47,13 @@ final class TouchIdController
     }
 
     #[Route('/webauthn/register/verify', name: 'webauthn_register_verify', methods: ['POST'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function registerVerify(Request $request): JsonResponse
     {
-        $user = $this->requireTouchIdUser();
+        $user = $this->touchIdUserOrError();
+        if ($user instanceof JsonResponse) {
+            return $user;
+        }
+
         $payload = $this->decodeJson($request);
 
         if ($payload === null) {
@@ -80,10 +83,12 @@ final class TouchIdController
     }
 
     #[Route('/webauthn/credentials/{id}', name: 'webauthn_credential_delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function deleteCredential(int $id): JsonResponse
     {
-        $user = $this->requireTouchIdUser();
+        $user = $this->touchIdUserOrError();
+        if ($user instanceof JsonResponse) {
+            return $user;
+        }
 
         if (!$this->touchIdManager->deleteCredential($user, $id)) {
             return new JsonResponse(['success' => false, 'message' => $this->trans('not_found')], 404);
@@ -170,11 +175,25 @@ final class TouchIdController
         ]);
     }
 
-    private function requireTouchIdUser(): TouchIdUserInterface
+    private function touchIdUserOrError(): TouchIdUserInterface|JsonResponse
     {
         $user = $this->security->getUser();
+        if ($user === null) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Authentication required. If you use a separate admin firewall, share its security context (e.g. context: main) or expose /webauthn on that firewall.',
+            ], 401);
+        }
+
         if (!$user instanceof TouchIdUserInterface) {
-            throw new AccessDeniedException();
+            return new JsonResponse([
+                'success' => false,
+                'message' => sprintf(
+                    'Authenticated user "%s" must implement %s.',
+                    $user::class,
+                    TouchIdUserInterface::class,
+                ),
+            ], 403);
         }
 
         return $user;

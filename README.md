@@ -96,6 +96,20 @@ access_control:
     - { path: ^/webauthn/login, roles: PUBLIC_ACCESS }
 ```
 
+Si l’admin utilise un **firewall séparé**, la session n’est pas vue sur `/webauthn/*` → 401/403. Partagez le contexte :
+
+```yaml
+security:
+    firewalls:
+        main:
+            # …
+        admin:
+            pattern: ^/admin
+            context: main   # même contexte de sécurité que main
+```
+
+Ou autorisez `/webauthn` dans le firewall admin (pattern / routing).
+
 ### 6. User
 
 ```php

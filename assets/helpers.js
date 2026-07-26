@@ -180,6 +180,7 @@ export async function fetchJson(url, body = {}, method = 'POST') {
             'Content-Type': 'application/json',
             Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
+            ...csrfHeaders(),
         },
         credentials: 'same-origin',
         body: method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(body),
@@ -187,12 +188,26 @@ export async function fetchJson(url, body = {}, method = 'POST') {
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-        const error = new Error(data.message || 'Request failed');
+        const error = new Error(data.message || `Request failed (${response.status})`);
         error.status = response.status;
         error.data = data;
         throw error;
     }
     return data;
+}
+
+function csrfHeaders() {
+    const meta = document.querySelector('meta[name="csrf-token"], meta[name="csrf_token"]');
+    if (meta?.content) {
+        return { 'X-CSRF-TOKEN': meta.content };
+    }
+
+    const match = document.cookie.match(/(?:^|; )(?:csrf[_-]?token|XSRF-TOKEN)=([^;]*)/i);
+    if (match?.[1]) {
+        return { 'X-CSRF-TOKEN': decodeURIComponent(match[1]) };
+    }
+
+    return {};
 }
 
 /** Friendlier messages for Android Credential Manager failures. */
