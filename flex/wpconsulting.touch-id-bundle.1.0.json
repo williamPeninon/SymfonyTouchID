@@ -1,0 +1,54 @@
+{
+    "manifests": {
+        "wpconsulting/touch-id-bundle": {
+            "manifest": {
+                "bundles": {
+                    "WpConsulting\\TouchIdBundle\\TouchIdBundle": [
+                        "all"
+                    ]
+                },
+                "copy-from-recipe": {
+                    "config/": "%CONFIG_DIR%/"
+                },
+                "aliases": [
+                    "touch-id",
+                    "webauthn-touch-id"
+                ],
+                "post-install-output": [
+                    "",
+                    "<bg=blue;fg=white> wpconsulting/touch-id-bundle </>",
+                    "",
+                    "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class + user_repository).",
+                    "  * Then: <comment>php bin/console touch-id:install</>",
+                    ""
+                ]
+            },
+            "files": {
+                "config/packages/wp_consulting_touch_id.yaml": {
+                    "contents": [
+                        "wp_consulting_touch_id:",
+                        "    user_class: App\\Entity\\User",
+                        "    user_repository: App\\Repository\\UserRepository",
+                        "    rp_name: 'My App'",
+                        "    login_authenticator: form_login",
+                        "    default_redirect_route: app_account",
+                        "    translation_domain: TouchIdBundle",
+                        "    translation_prefix: ''",
+                        "    email_input_selector: '#username, input[name=\"_username\"], input[name=\"email\"], input[type=\"email\"]'",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "config/routes/touch_id.yaml": {
+                    "contents": [
+                        "touch_id:",
+                        "    resource: '@TouchIdBundle/config/routes.yaml'",
+                        ""
+                    ],
+                    "executable": false
+                }
+            },
+            "ref": "flex-1.0"
+        }
+    }
+}

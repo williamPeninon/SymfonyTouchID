@@ -1,0 +1,64 @@
+{
+    "manifests": {
+        "wpconsulting/touch-id-bundle": {
+            "manifest": {
+                "bundles": {
+                    "WpConsulting\\TouchIdBundle\\TouchIdBundle": [
+                        "all"
+                    ]
+                },
+                "copy-from-recipe": {
+                    "config/": "%CONFIG_DIR%/"
+                },
+                "aliases": [
+                    "touch-id",
+                    "webauthn-touch-id"
+                ],
+                "post-install-output": [
+                    "",
+                    "<bg=blue;fg=white> wpconsulting/touch-id-bundle </>",
+                    "",
+                    "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class + user_repository).",
+                    "  * Implement <comment>TouchIdUserInterface</> / <comment>TouchIdUserRepositoryInterface</>.",
+                    "  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.",
+                    "  * Enable Stimulus controllers in <comment>assets/controllers.json</>.",
+                    "  * Create the table: <comment>php bin/console touch-id:install</>.",
+                    "  * Twig: <comment>@TouchId/touch_id/_login_button.html.twig</> + <comment>touch_id_credentials(app.user)</>.",
+                    ""
+                ]
+            },
+            "files": {
+                "config/packages/wp_consulting_touch_id.yaml": {
+                    "contents": [
+                        "# config/packages/wp_consulting_touch_id.yaml",
+                        "wp_consulting_touch_id:",
+                        "    # REQUIRED — your User entity implementing TouchIdUserInterface",
+                        "    user_class: App\\Entity\\User",
+                        "    # REQUIRED — service id implementing TouchIdUserRepositoryInterface",
+                        "    user_repository: App\\Repository\\UserRepository",
+                        "    rp_name: 'My App'",
+                        "    login_authenticator: form_login",
+                        "    default_redirect_route: app_account",
+                        "    # Optional: App\\Security\\LoginSuccessHandler",
+                        "    # success_handler: null",
+                        "    translation_domain: TouchIdBundle",
+                        "    translation_prefix: ''",
+                        "    # CSS selectors to read the email on the login form (comma-separated)",
+                        "    email_input_selector: '#username, input[name=\"_username\"], input[name=\"email\"], input[type=\"email\"]'",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "config/routes/touch_id.yaml": {
+                    "contents": [
+                        "touch_id:",
+                        "    resource: '@TouchIdBundle/config/routes.yaml'",
+                        ""
+                    ],
+                    "executable": false
+                }
+            },
+            "ref": "flex-1.5"
+        }
+    }
+}

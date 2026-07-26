@@ -22,9 +22,14 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
+        $configured = !empty($config['user_class']) && !empty($config['user_repository']);
 
-        if (empty($config['user_class']) || empty($config['user_repository'])) {
-            throw new \InvalidArgumentException('You must configure "wp_consulting_touch_id.user_class" and "wp_consulting_touch_id.user_repository".');
+        $container->setParameter('wp_consulting_touch_id.configured', $configured);
+        $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class'] ?? null);
+
+        // Allow the host app to boot (assets:compile, cache:clear) before wiring User/repo.
+        if (!$configured) {
+            return;
         }
 
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
@@ -54,8 +59,6 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $container->setAlias(TouchIdUserRepositoryInterface::class, $config['user_repository'])
             ->setPublic(false);
 
-        $container->setParameter('wp_consulting_touch_id.user_class', $config['user_class']);
-
         if ($container->hasDefinition(TouchIdTwigExtension::class)) {
             $container->getDefinition(TouchIdTwigExtension::class)
                 ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
@@ -68,27 +71,29 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
     {
         $configs = $container->getExtensionConfig($this->getAlias());
         $config = $this->processConfiguration(new Configuration(), $configs);
+        $bundleRoot = \dirname(__DIR__, 2);
+
+        $doctrineOrm = [
+            'mappings' => [
+                'TouchIdBundle' => [
+                    'type' => 'attribute',
+                    'is_bundle' => false,
+                    'dir' => \dirname(__DIR__).'/Entity',
+                    'prefix' => 'WpConsulting\TouchIdBundle\Entity',
+                    'alias' => 'TouchIdBundle',
+                ],
+            ],
+        ];
 
         if (!empty($config['user_class'])) {
-            $container->prependExtensionConfig('doctrine', [
-                'orm' => [
-                    'resolve_target_entities' => [
-                        TouchIdUserInterface::class => $config['user_class'],
-                    ],
-                    'mappings' => [
-                        'TouchIdBundle' => [
-                            'type' => 'attribute',
-                            'is_bundle' => false,
-                            'dir' => \dirname(__DIR__).'/Entity',
-                            'prefix' => 'WpConsulting\TouchIdBundle\Entity',
-                            'alias' => 'TouchIdBundle',
-                        ],
-                    ],
-                ],
-            ]);
+            $doctrineOrm['resolve_target_entities'] = [
+                TouchIdUserInterface::class => $config['user_class'],
+            ];
         }
 
-        $bundleRoot = \dirname(__DIR__, 2);
+        $container->prependExtensionConfig('doctrine', [
+            'orm' => $doctrineOrm,
+        ]);
 
         $frameworkPrepend = [
             'translator' => [

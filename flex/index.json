@@ -1,6 +1,20 @@
 {
-    "recipes": {
-        "wpconsulting/touch-id-bundle": ["1.0", "1.4"]
+    "aliases": {
+        "touch-id": "wpconsulting/touch-id-bundle",
+        "webauthn-touch-id": "wpconsulting/touch-id-bundle"
     },
-    "branch": "main"
+    "recipes": {
+        "wpconsulting/touch-id-bundle": [
+            "1.0",
+            "1.5"
+        ]
+    },
+    "branch": "main",
+    "is_contrib": true,
+    "_links": {
+        "repository": "github.com/williamPeninon/SymfonyTouchID",
+        "origin_template": "{package}:{version}@github.com/williamPeninon/SymfonyTouchID:main",
+        "recipe_template": "https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/{package_dotted}.{version}.json",
+        "recipe_template_relative": "{package_dotted}.{version}.json"
+    }
 }

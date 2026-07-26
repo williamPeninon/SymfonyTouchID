@@ -22,19 +22,29 @@ Bundle Symfony pour la connexion sans mot de passe via **WebAuthn / passkeys** s
 
 ### 1. Endpoint Flex (recommandé)
 
-Dans le `composer.json` de **l’application** :
+Dans le `composer.json` de **l’application** (URL **raw**, pas l’API GitHub `contents`) :
 
 ```json
 {
     "extra": {
         "symfony": {
             "endpoint": [
-                "https://api.github.com/repos/williamPeninon/SymfonyTouchID/contents/flex/index.json?ref=main",
+                "https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/index.json",
                 "flex://defaults"
             ]
         }
     }
 }
+```
+
+> Sans cet endpoint, Flex **ne copie pas** les fichiers de config. Créez alors à la main `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml` (modèles dans le README / dossier `flex/`).
+
+Puis réinstallez / mettez à jour pour appliquer la recipe :
+
+```bash
+composer require wpconsulting/touch-id-bundle
+# ou si déjà installé sans recipe :
+composer recipes:install wpconsulting/touch-id-bundle --force -v
 ```
 
 ### 2. Composer
