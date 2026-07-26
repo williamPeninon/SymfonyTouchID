@@ -10,7 +10,7 @@
         ]
     },
     "branch": "main",
-    "is_contrib": true,
+    "is_contrib": false,
     "_links": {
         "repository": "github.com/williamPeninon/SymfonyTouchID",
         "origin_template": "{package}:{version}@github.com/williamPeninon/SymfonyTouchID:main",

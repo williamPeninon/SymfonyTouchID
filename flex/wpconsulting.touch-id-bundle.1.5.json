@@ -19,11 +19,11 @@
                     "<bg=blue;fg=white> wpconsulting/touch-id-bundle </>",
                     "",
                     "  * Edit <comment>config/packages/wp_consulting_touch_id.yaml</> (user_class + user_repository).",
-                    "  * Implement <comment>TouchIdUserInterface</> / <comment>TouchIdUserRepositoryInterface</>.",
+                    "  * Implement <comment>TouchIdUserInterface</> on your User and <comment>TouchIdUserRepositoryInterface</> on the repo.",
                     "  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.",
-                    "  * Enable Stimulus controllers in <comment>assets/controllers.json</>.",
-                    "  * Create the table: <comment>php bin/console touch-id:install</>.",
-                    "  * Twig: <comment>@TouchId/touch_id/_login_button.html.twig</> + <comment>touch_id_credentials(app.user)</>.",
+                    "  * Enable Stimulus controllers in <comment>assets/controllers.json</> (see README).",
+                    "  * Create the table: <comment>php bin/console touch-id:install</>",
+                    "  * Twig: <comment>touch_id_credentials(app.user)</> / global <comment>touch_id_manager</>.",
                     ""
                 ]
             },
