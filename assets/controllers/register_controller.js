@@ -25,8 +25,6 @@ export default class extends Controller {
     static targets = [
         'panel',
         'button',
-        'faceButton',
-        'fingerprintButton',
         'list',
         'empty',
         'error',
@@ -70,41 +68,21 @@ export default class extends Controller {
 
     applyBiometricLabel() {
         const template = this.element.dataset.addLabelTemplate || 'Ajouter %biometric%';
-
-        if (isSamsungDevice()) {
-            // Dedicated Face + Fingerprint CTAs (OS still chooses the verifier at prompt).
-            if (this.hasButtonTarget) {
-                this.buttonTarget.hidden = true;
-            }
-            if (this.hasFaceButtonTarget) {
-                this.faceButtonTarget.hidden = false;
-                const faceLabel = this.element.querySelector('[data-webauthn-register-target="faceLabel"]');
-                if (faceLabel) {
-                    faceLabel.textContent = template.replace('%biometric%', 'Samsung Face ID');
-                }
-            }
-            if (this.hasFingerprintButtonTarget) {
-                this.fingerprintButtonTarget.hidden = false;
-                const fpLabel = this.element.querySelector('[data-webauthn-register-target="fingerprintLabel"]');
-                if (fpLabel) {
-                    fpLabel.textContent = template.replace('%biometric%', 'Samsung Fingerprint');
-                }
-            }
-            if (this.hasSamsungHintTarget) {
-                this.samsungHintTarget.hidden = false;
-            }
-            return;
-        }
-
         const label = preferredBiometricLabel();
         const text = template.replace('%biometric%', label);
         const labelEl = this.element.querySelector('[data-webauthn-register-target="addLabel"]');
         if (labelEl) {
             labelEl.textContent = text;
-            return;
-        }
-        if (this.hasButtonTarget) {
+        } else if (this.hasButtonTarget) {
             this.buttonTarget.textContent = text;
+        }
+
+        if (this.hasButtonTarget) {
+            this.buttonTarget.dataset.credentialName = label;
+        }
+
+        if (isSamsungDevice() && this.hasSamsungHintTarget) {
+            this.samsungHintTarget.hidden = false;
         }
     }
 
@@ -226,16 +204,11 @@ export default class extends Controller {
     }
 
     setLoading(loading, trigger = null) {
-        const buttons = [
-            this.hasButtonTarget ? this.buttonTarget : null,
-            this.hasFaceButtonTarget ? this.faceButtonTarget : null,
-            this.hasFingerprintButtonTarget ? this.fingerprintButtonTarget : null,
-        ].filter(Boolean);
-
-        for (const button of buttons) {
-            button.disabled = loading;
-            button.classList.toggle('is-loading', loading && (!trigger || button === trigger));
+        if (!this.hasButtonTarget) {
+            return;
         }
+        this.buttonTarget.disabled = loading;
+        this.buttonTarget.classList.toggle('is-loading', loading && (!trigger || this.buttonTarget === trigger));
     }
 
     showError(message) {

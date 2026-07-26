@@ -59,8 +59,10 @@ export function supportsPlatformBiometricUi() {
 /**
  * Best-effort label for the device biometric.
  * WebAuthn does not expose fingerprint vs face — we infer from the platform.
- * On Samsung, Face recognition and fingerprint both work via Credential Manager
- * when enrolled under Settings → Biometrics (OS picks the method at prompt).
+ *
+ * Samsung note: screen-unlock Face recognition is usually a *weak* biometric.
+ * Samsung Pass / Credential Manager typically only offers fingerprint for
+ * passkeys (FIDO / strong UV). Face cannot be forced from the website.
  */
 export function preferredBiometricLabel() {
     if (isIosDevice()) {
@@ -70,10 +72,10 @@ export function preferredBiometricLabel() {
         return 'Touch ID';
     }
     if (isSamsungDevice()) {
-        return 'Samsung Face ID';
+        return 'Samsung Fingerprint';
     }
     if (isAndroidDevice()) {
-        return 'Face / Fingerprint';
+        return 'Fingerprint';
     }
     if (isWindowsDevice()) {
         return 'Windows Hello';
@@ -81,10 +83,9 @@ export function preferredBiometricLabel() {
     return 'Biometrics';
 }
 
-/** Extra register CTAs on Samsung (Face + Fingerprint), same WebAuthn platform flow. */
+/** @deprecated Face is not available for Samsung passkeys; fingerprint only. */
 export function samsungBiometricChoices() {
     return [
-        { name: 'Samsung Face ID', label: 'Samsung Face ID' },
         { name: 'Samsung Fingerprint', label: 'Samsung Fingerprint' },
     ];
 }
