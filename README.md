@@ -242,28 +242,134 @@ Le site **ne peut pas forcer** le visage dans ce prompt : c’est le système Sa
 
 ---
 
-## Google Cloud Console (uniquement si app Android native)
+## Configurer les ID clients OAuth 2.0 sur Google
 
-Les passkeys **web seules** (Chrome / Samsung Internet) fonctionnent **sans** [Google Cloud Console](https://console.cloud.google.com/).
+Console : [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services** → **Credentials**.
 
-Utilisez Cloud Console + [Digital Asset Links](https://developers.google.com/identity/credential-sharing/set-up) seulement si vous avez aussi une **app Android** qui doit partager les credentials avec le site.
+| Type de client | À quoi ça sert | Obligatoire pour ce bundle ? |
+|---|---|---|
+| **Application Web** | « Se connecter avec Google » sur le site Symfony (OAuth login) | Non (hors WebAuthn) — utile sur le même SaaS |
+| **Android** | Lier une app native au site (Digital Asset Links / Credential Manager) | Non si **web seul** ; oui si app Android + partage de passkeys |
 
-### 1. Projet
+Les passkeys **web seules** (Chrome / Samsung Internet) n’exigent **pas** d’ID client OAuth. Créez-en un seulement pour Google Sign-In et/ou une app Android.
 
-1. https://console.cloud.google.com/
-2. Créer / sélectionner un projet
+### 1. Créer ou sélectionner un projet
 
-### 2. Client OAuth Android + SHA-256
+1. Ouvrir https://console.cloud.google.com/
+2. Sélecteur de projet (en haut) → **Nouveau projet** (ex. `mon-saas-auth`) → **Créer**
+3. Vérifier que le bon projet est sélectionné
 
-1. **APIs & Services → Credentials → Create credentials → OAuth client ID**
-2. Type **Android**, package name de l’app
-3. SHA-256 :
-   - Debug : `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
-   - Release : Play Console → App signing → SHA-256
+### 2. Configurer l’écran de consentement OAuth
 
-### 3. `assetlinks.json`
+Avant le premier ID client, Google demande un **écran de consentement** :
 
-Publier sur `https://VOTRE_DOMAINE/.well-known/assetlinks.json` (`Content-Type: application/json`, HTTP 200, **sans** redirect) :
+1. Menu **APIs & Services** → **OAuth consent screen** (ou **Google Auth platform** → **Branding** / **Audience** selon la nouvelle UI)
+2. Type d’utilisateur :
+   - **External** : comptes Google grand public (tests + prod)
+   - **Internal** : uniquement les comptes de votre organisation Google Workspace
+3. Renseigner :
+   - Nom de l’appli
+   - E-mail d’assistance utilisateur
+   - Domaines autorisés (ex. `votredomaine.com`) si vous en avez
+   - E-mail de contact développeur
+4. **Scopes** : pour un login Google basique, garder au minimum :
+   - `openid`
+   - `.../auth/userinfo.email`
+   - `.../auth/userinfo.profile`
+5. En mode External + tests : ajouter les **e-mails testeurs** (sinon seuls les testeurs peuvent se connecter tant que l’appli n’est pas en production / vérifiée)
+6. Enregistrer
+
+### 3. Créer un ID client OAuth 2.0 — type « Application Web »
+
+Pour le bouton **Se connecter avec Google** du site :
+
+1. **APIs & Services** → **Credentials**
+2. **+ Créer des identifiants** → **ID client OAuth**
+3. Type d’application : **Application Web**
+4. Nom : ex. `SaaS Web Login`
+5. **URI de redirection autorisés** (callback Symfony, à adapter) :
+
+   | Environnement | Exemple d’URI |
+   |---|---|
+   | Local | `https://localhost:8000/connect/google/check` |
+   | Local HTTP | `http://localhost:8000/connect/google/check` |
+   | ngrok | `https://xxxx.ngrok-free.app/connect/google/check` |
+   | Production | `https://votredomaine.com/connect/google/check` |
+
+   - Ajouter **chaque** hostname utilisé (localhost, ngrok, prod) — un mismatch d’URI = erreur `redirect_uri_mismatch`.
+   - Le chemin doit être **exactement** celui de votre route OAuth check (souvent `/connect/google/check` avec knpu/oauth2-client-bundle).
+6. (Optionnel) **Origines JavaScript autorisées** : `https://localhost:8000`, `https://votredomaine.com`, etc. — utile si vous utilisez des lib Google côté navigateur (GIS). Pour un flux serveur classique (redirection), les URI de redirection suffisent.
+7. **Créer** → copier :
+   - **ID client** (`xxxx.apps.googleusercontent.com`)
+   - **Code secret du client**
+
+#### Brancher dans Symfony (exemple)
+
+```env
+# .env.local
+GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxx
+```
+
+```yaml
+# config/packages/knpu_oauth2_client.yaml (exemple)
+knpu_oauth2_client:
+    clients:
+        google:
+            type: google
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
+            redirect_route: connect_google_check
+            redirect_params: {}
+```
+
+Ne **jamais** committer le secret ; utilisez `.env.local` / secrets de déploiement.
+
+### 4. Créer un ID client OAuth 2.0 — type « Android »
+
+Uniquement si vous avez une **app Android** liée au site (partage passkeys / passwords via Digital Asset Links) :
+
+1. **Credentials** → **+ Créer des identifiants** → **ID client OAuth**
+2. Type : **Android**
+3. Nom : ex. `SaaS Android`
+4. **Nom du package** : celui de l’app (`com.example.myapp` dans `build.gradle` / Play Console)
+5. **Empreinte SHA-1** (Google demande souvent SHA-1 pour le client Android ; pour `assetlinks.json` vous aurez aussi besoin du **SHA-256**) :
+
+```bash
+# Debug
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+
+# Release / Play App Signing : Play Console → votre app → Configuration → Intégrité de l’app → SHA-1 / SHA-256
+```
+
+6. **Créer** (pas de secret client pour le type Android)
+
+Utilisez le **même** SHA-256 dans le fichier `assetlinks.json` du site (section suivante).
+
+### 5. (Optionnel) ID client iOS
+
+Si vous avez une app iOS native :
+
+1. Type **iOS**
+2. **Bundle ID** = celui de Xcode (`com.example.myapp`)
+3. Pas de secret ; utile pour Sign in with Google / services Google côté app — **sans lien direct** avec WebAuthn web.
+
+### 6. Checklist OAuth
+
+- [ ] Bon **projet** sélectionné dans la console
+- [ ] Écran de consentement renseigné (+ testeurs si External / Testing)
+- [ ] Client **Web** créé avec **toutes** les URI de redirection (local + tunnel + prod)
+- [ ] `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` dans l’environnement Symfony
+- [ ] Route callback accessible en HTTPS (ou localhost)
+- [ ] En cas d’erreur `redirect_uri_mismatch` : comparer l’URI exacte de la barre d’adresse / des logs avec celle déclarée dans la console (schéma, host, port, chemin, trailing slash)
+
+Documentation Google : [Créer des ID client OAuth](https://developers.google.com/identity/protocols/oauth2).
+
+---
+
+## Digital Asset Links (app Android + site)
+
+En plus du client OAuth Android, publiez `https://VOTRE_DOMAINE/.well-known/assetlinks.json` (`Content-Type: application/json`, HTTP 200, **sans** redirect) :
 
 ```json
 [
@@ -283,7 +389,7 @@ Publier sur `https://VOTRE_DOMAINE/.well-known/assetlinks.json` (`Content-Type: 
 ]
 ```
 
-Voir aussi [Credential Manager prerequisites](https://developer.android.com/identity/credential-manager/prerequisites).
+Voir [Credential sharing](https://developers.google.com/identity/credential-sharing/set-up) et [Credential Manager prerequisites](https://developer.android.com/identity/credential-manager/prerequisites).
 
 ---
 
@@ -303,4 +409,4 @@ Voir aussi [Credential Manager prerequisites](https://developer.android.com/iden
 
 1. Pousser le dépôt Git public  
 2. https://packagist.org/packages/submit  
-3. `git tag v1.3.1 && git push --tags`
+3. `git tag v1.3.3 && git push --tags`
