@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.6] — 2026-07-27
+
+### Changed
+
+- Distinct login button styles (outline accent) vs manage primary buttons.
+
+---
+
 ## [3.0.4] — 2026-07-27
 
 ### Changed

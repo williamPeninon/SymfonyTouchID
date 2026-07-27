@@ -41,7 +41,28 @@
     width: 100%;
 }
 
-.passkey-login .auth-passkey-btn,
+.passkey-login .auth-passkey-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.7rem 1.15rem;
+    border: 1px solid color-mix(in srgb, var(--pk-accent) 35%, white);
+    border-radius: var(--pk-radius);
+    background: var(--pk-accent-soft);
+    color: var(--pk-accent);
+    font: inherit;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 160ms ease, border-color 160ms ease, transform 120ms ease, opacity 120ms ease;
+}
+
 .passkey-manage .passkey-btn {
     appearance: none;
     display: inline-flex;
@@ -65,7 +86,11 @@
     transition: background 160ms ease, transform 120ms ease, box-shadow 160ms ease, opacity 120ms ease;
 }
 
-.passkey-login .auth-passkey-btn:hover,
+.passkey-login .auth-passkey-btn:hover {
+    background: color-mix(in srgb, var(--pk-accent) 20%, var(--pk-accent-soft));
+    border-color: var(--pk-accent);
+}
+
 .passkey-manage .passkey-btn:hover {
     background: var(--pk-accent-hover);
 }
@@ -89,7 +114,17 @@
     color: transparent;
 }
 
-.passkey-login .auth-passkey-btn.is-loading::after,
+.passkey-login .auth-passkey-btn.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid color-mix(in srgb, var(--pk-accent) 35%, transparent);
+    border-top-color: var(--pk-accent);
+    border-radius: 50%;
+    animation: pk-spin 0.7s linear infinite;
+}
+
 .passkey-manage .passkey-btn.is-loading::after {
     content: "";
     position: absolute;
