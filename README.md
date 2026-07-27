@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml/badge.svg)](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml)
 [![Latest Stable Version](https://img.shields.io/packagist/v/wpconsulting/passkey-bundle.svg)](https://packagist.org/packages/wpconsulting/passkey-bundle)
-[![License](https://img.shields.io/packagist/l/wpconsulting/passkey-bundle.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/williamPeninon/SymfonyTouchID.svg)](LICENSE)
 
 Bundle Symfony pour l’authentification **WebAuthn / passkeys** via l’authenticator plateforme de l’appareil :
 
