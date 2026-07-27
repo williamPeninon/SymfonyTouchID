@@ -36,6 +36,10 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         $container->setParameter('wp_consulting_touch_id.configured', $configured);
         $container->setParameter('wp_consulting_touch_id.user_class', $userClass);
 
+        $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
+        // Configure command must work before user_class / TouchIdUserInterface are ready.
+        $loader->load('services_installer.yaml');
+
         // Register as soon as user_class is a real class (even before it implements the interface),
         // so doctrine:schema:validate / migrations:diff can resolve the ManyToOne FK.
         if (\is_string($userClass) && $userClass !== '' && class_exists($userClass)) {
@@ -47,7 +51,6 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             return;
         }
 
-        $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
         $loader->load('services.yaml');
 
         $container->getDefinition(TouchIdManager::class)

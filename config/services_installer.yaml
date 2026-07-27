@@ -1,0 +1,10 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Always available — even before user_class is wired.
+    WpConsulting\TouchIdBundle\Installer\ProjectConfigurator: ~
+
+    WpConsulting\TouchIdBundle\Command\TouchIdConfigureCommand:
+        tags: ['console.command']
