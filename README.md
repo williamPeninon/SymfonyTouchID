@@ -85,7 +85,7 @@ Pour copier aussi les YAML via Symfony Flex :
     "extra": {
         "symfony": {
             "endpoint": [
-                "https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/index.json",
+                "https://raw.githubusercontent.com/williamPeninon/passkey-bundle/main/flex/index.json",
                 "flex://defaults"
             ]
         }
@@ -93,7 +93,19 @@ Pour copier aussi les YAML via Symfony Flex :
 }
 ```
 
-Sans endpoint custom, Flex peut afficher `auto-generated recipe` : ce n’est pas bloquant, `passkey:configure` suffit.
+Sans endpoint custom, Flex peut afficher `auto-generated recipe` : ce n’est pas bloquant.
+Le plugin Composer affiche alors le message post-install (commande `passkey:configure` + détail).
+Autorisez-le si Composer le demande :
+
+```json
+{
+    "config": {
+        "allow-plugins": {
+            "wpconsulting/passkey-bundle": true
+        }
+    }
+}
+```
 
 ---
 

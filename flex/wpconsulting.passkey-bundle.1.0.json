@@ -13,14 +13,6 @@
                 "aliases": [
                     "passkey",
                     "webauthn-passkey"
-                ],
-                "post-install-output": [
-                    "",
-                    "<bg=blue;fg=white> wpconsulting/passkey-bundle </>",
-                    "",
-                    "  * Run <comment>php bin/console passkey:configure</> (user_class, User interface, Stimulus, DB).",
-                    "  * Twig: include <comment>@Passkey/passkey/_login_button.html.twig</> + <comment>_manage.html.twig</>.",
-                    ""
                 ]
             },
             "files": {
@@ -63,7 +55,7 @@
                     "executable": false
                 }
             },
-            "ref": "flex-1.0.0"
+            "ref": "flex-1.0.1"
         }
     }
 }

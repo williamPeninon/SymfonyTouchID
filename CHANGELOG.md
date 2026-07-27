@@ -7,6 +7,16 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.2] — 2026-07-27
+
+### Added
+
+- Message post-install Composer : commande `passkey:configure` + détail des étapes.
+  (plugin d’affichage uniquement — autoriser `wpconsulting/passkey-bundle` dans `allow-plugins`)
+
+---
+
+
 ## [3.0.1] — 2026-07-27
 
 ### Changed

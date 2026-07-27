@@ -11,9 +11,9 @@
     "branch": "main",
     "is_contrib": true,
     "_links": {
-        "repository": "github.com/williamPeninon/SymfonyTouchID",
-        "origin_template": "{package}:{version}@github.com/williamPeninon/SymfonyTouchID:main",
-        "recipe_template": "https://raw.githubusercontent.com/williamPeninon/SymfonyTouchID/main/flex/{package_dotted}.{version}.json",
+        "repository": "github.com/williamPeninon/passkey-bundle",
+        "origin_template": "{package}:{version}@github.com/williamPeninon/passkey-bundle:main",
+        "recipe_template": "https://raw.githubusercontent.com/williamPeninon/passkey-bundle/main/flex/{package_dotted}.{version}.json",
         "recipe_template_relative": "{package_dotted}.{version}.json"
     }
 }
