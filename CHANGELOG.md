@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.3] — 2026-07-27
+
+### Docs
+
+- English `README.md` (Packagist default) + French `README.fr.md` with cross-links.
+
+---
+
 ## [3.0.2] — 2026-07-27
 
 ### Added

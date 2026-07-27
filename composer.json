@@ -13,7 +13,7 @@
         "face-id",
         "windows-hello"
     ],
-    "homepage": "https://github.com/williamPeninon/SymfonyTouchID",
+    "homepage": "https://github.com/williamPeninon/passkey-bundle",
     "license": "MIT",
     "authors": [
         {
@@ -22,8 +22,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/williamPeninon/SymfonyTouchID/issues",
-        "source": "https://github.com/williamPeninon/SymfonyTouchID"
+        "issues": "https://github.com/williamPeninon/passkey-bundle/issues",
+        "source": "https://github.com/williamPeninon/passkey-bundle"
     },
     "require": {
         "php": ">=8.2",

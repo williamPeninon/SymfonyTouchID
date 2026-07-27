@@ -1,44 +1,40 @@
 # WP Consulting Passkey Bundle
 
-[![CI](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml/badge.svg)](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml)
+**Language:** [English](README.md) · [Français](README.fr.md)
+
+[![CI](https://github.com/williamPeninon/passkey-bundle/actions/workflows/ci.yml/badge.svg)](https://github.com/williamPeninon/passkey-bundle/actions/workflows/ci.yml)
 [![Latest Stable Version](https://img.shields.io/packagist/v/wpconsulting/passkey-bundle.svg)](https://packagist.org/packages/wpconsulting/passkey-bundle)
-[![License](https://img.shields.io/github/license/williamPeninon/SymfonyTouchID.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/williamPeninon/passkey-bundle.svg)](LICENSE)
 
-Bundle Symfony pour l’authentification **WebAuthn / passkeys** via l’authenticator plateforme de l’appareil :
+Symfony bundle for **WebAuthn / passkeys** using the device’s platform authenticator:
 
+| Platform          | Method                                              |
+| ----------------- | --------------------------------------------------- |
+| Mac               | **Touch ID**                                        |
+| iPhone / iPad     | **Face ID** (or Touch ID)                           |
+| Samsung / Android | **Fingerprint** (Credential Manager / Samsung Pass) |
+| Windows           | **Windows Hello**                                   |
 
-| Plateforme        | Méthode                                           |
-| ----------------- | ------------------------------------------------- |
-| Mac               | **Touch ID**                                      |
-| iPhone / iPad     | **Face ID** (ou Touch ID)                         |
-| Samsung / Android | **Empreinte** (Credential Manager / Samsung Pass) |
-| Windows           | **Windows Hello**                                 |
-
-
-> Déverrouiller le téléphone ou le Mac **ne crée pas** une passkey pour votre site. Il faut **enregistrer** une passkey depuis le compte connecté, sur **le même appareil** et le **même hostname** (RP ID).
+> Unlocking the phone or Mac **does not** create a passkey for your site. Users must **register** a passkey from their logged-in account, on the **same device** and the **same hostname** (RP ID).
 
 ---
 
-
-
-## Prérequis
+## Requirements
 
 - PHP `>= 8.2`
-- Symfony `^6.4` ou `^7.0`
+- Symfony `^6.4` or `^7.0`
 - Doctrine ORM + Security + Twig + Stimulus (Asset Mapper / UX)
 
 ---
 
-
-
-## Installation rapide
+## Quick install
 
 ```bash
 composer require wpconsulting/passkey-bundle
 php bin/console passkey:configure
 ```
 
-Puis ajoutez les partials Twig (seul câblage manuel restant) :
+Then add the Twig partials (only remaining manual wiring):
 
 **Login**
 
@@ -46,7 +42,7 @@ Puis ajoutez les partials Twig (seul câblage manuel restant) :
 {% include '@Passkey/passkey/_login_button.html.twig' %}
 ```
 
-**Compte (gestion des passkeys)**
+**Account (manage passkeys)**
 
 ```twig
 {% include '@Passkey/passkey/_manage.html.twig' with {
@@ -54,31 +50,27 @@ Puis ajoutez les partials Twig (seul câblage manuel restant) :
 } %}
 ```
 
+### What `passkey:configure` does
 
-
-### Ce que fait `passkey:configure`
-
-- publie `config/packages/wp_consulting_passkey.yaml` et `config/routes/passkey.yaml`
-- publie `config/packages/dev/framework.yaml` (`trusted_proxies` pour ngrok — **dev only**)
-- enregistre le bundle dans `config/bundles.php` si besoin
-- demande `user_class` + `user_identifier_field`
-- implémente `PasskeyUserInterface` sur l’entité User
-- active les contrôleurs Stimulus dans `assets/controllers.json`
-- ajoute `PUBLIC_ACCESS` pour `^/webauthn/login`
-- crée la table `web_authn_credential` (`passkey:install` / migrations)
+- publishes `config/packages/wp_consulting_passkey.yaml` and `config/routes/passkey.yaml`
+- publishes `config/packages/dev/framework.yaml` (`trusted_proxies` for ngrok — **dev only**)
+- registers the bundle in `config/bundles.php` if needed
+- asks for `user_class` + `user_identifier_field`
+- implements `PasskeyUserInterface` on the User entity
+- enables Stimulus controllers in `assets/controllers.json`
+- adds `PUBLIC_ACCESS` for `^/webauthn/login`
+- creates the `web_authn_credential` table (`passkey:install` / migrations)
 
 ```bash
-# Exemples
+# Examples
 php bin/console passkey:configure --user-class=App\\Entity\\User
 php bin/console passkey:configure --no-db
-php bin/console passkey:configure -n   # non interactif si user_class déjà dans le YAML
+php bin/console passkey:configure -n   # non-interactive if user_class is already in YAML
 ```
 
+### Flex (optional)
 
-
-### Flex (optionnel)
-
-Pour copier aussi les YAML via Symfony Flex :
+To also copy YAML via Symfony Flex:
 
 ```json
 {
@@ -93,9 +85,9 @@ Pour copier aussi les YAML via Symfony Flex :
 }
 ```
 
-Sans endpoint custom, Flex peut afficher `auto-generated recipe` : ce n’est pas bloquant.
-Le plugin Composer affiche alors le message post-install (commande `passkey:configure` + détail).
-Autorisez-le si Composer le demande :
+Without a custom endpoint, Flex may show an `auto-generated recipe` — that is fine.
+The Composer plugin then prints the post-install message (`passkey:configure` + details).
+Allow it if Composer asks:
 
 ```json
 {
@@ -109,15 +101,13 @@ Autorisez-le si Composer le demande :
 
 ---
 
-
-
 ## Configuration
 
 ```yaml
 # config/packages/wp_consulting_passkey.yaml
 wp_consulting_passkey:
-    user_class: App\Entity\User          # FQCN de l’entité, pas un namespace
-    user_identifier_field: email         # champ Doctrine pour le lookup login
+    user_class: App\Entity\User          # entity FQCN, not a namespace
+    user_identifier_field: email         # Doctrine field used for login lookup
     rp_name: 'My App'
     login_authenticator: form_login
     default_redirect_route: app_account
@@ -127,19 +117,17 @@ wp_consulting_passkey:
     email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'
 ```
 
+| Option                   | Purpose                                                      |
+| ------------------------ | ------------------------------------------------------------ |
+| `user_class`             | User entity (must implement `PasskeyUserInterface`)          |
+| `user_identifier_field`  | Field used at WebAuthn login (`email`, `username`, …)        |
+| `rp_name`                | Name shown in the passkey dialog                             |
+| `login_authenticator`    | Security authenticator passed to `Security::login()`         |
+| `default_redirect_route` | Redirect after biometric login                               |
+| `success_handler`        | Optional post-login handler                                  |
+| `email_input_selector`   | CSS selectors for the identifier field on the login form     |
 
-| Option                   | Rôle                                                     |
-| ------------------------ | -------------------------------------------------------- |
-| `user_class`             | Entité User (doit implémenter `PasskeyUserInterface`)    |
-| `user_identifier_field`  | Champ utilisé au login WebAuthn (`email`, `username`, …) |
-| `rp_name`                | Nom affiché dans le dialogue passkey                     |
-| `login_authenticator`    | Authenticator Security passé à `Security::login()`       |
-| `default_redirect_route` | Redirection après login biométrique                      |
-| `success_handler`        | Handler optionnel post-login                             |
-| `email_input_selector`   | Sélecteurs CSS du champ email sur le formulaire login    |
-
-
-Tant que `user_class` n’est pas une classe valide implémentant `PasskeyUserInterface`, les services métier ne sont pas câblés : `cache:clear` / `asset-map:compile` restent possibles. La commande `passkey:configure` est **toujours** disponible.
+Until `user_class` is a valid class implementing `PasskeyUserInterface`, business services are not wired: `cache:clear` / `asset-map:compile` still work. The `passkey:configure` command is **always** available.
 
 ### User
 
@@ -165,18 +153,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Passkey
 }
 ```
 
-
-
 ### Security / firewalls
 
-`passkey:configure` ajoute :
+`passkey:configure` adds:
 
 ```yaml
 access_control:
     - { path: ^/webauthn/login, roles: PUBLIC_ACCESS }
 ```
 
-Si vous avez un **firewall admin séparé**, partagez le contexte de session :
+If you have a **separate admin firewall**, share the session context:
 
 ```yaml
 security:
@@ -187,18 +173,18 @@ security:
             context: main
 ```
 
-Sinon la session créée sur `/webauthn/*` n’est pas vue par l’admin → 401/403.
+Otherwise the session created on `/webauthn/*` is invisible to admin → 401/403.
 
-### Base de données
+### Database
 
 ```bash
 php bin/console passkey:install
-# ou
+# or
 php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate
 ```
 
-Vérification :
+Check:
 
 ```bash
 php bin/console doctrine:mapping:info
@@ -207,13 +193,9 @@ php bin/console doctrine:mapping:info
 
 ---
 
-
-
 ## Twig
 
-
-
-### Login - `_login_button.html.twig`
+### Login — `_login_button.html.twig`
 
 ```twig
 {% include '@Passkey/passkey/_login_button.html.twig' with {
@@ -222,9 +204,9 @@ php bin/console doctrine:mapping:info
 } %}
 ```
 
-Options : `email_input`, `redirect_url`, `button_class`, `show_hint`, `show_divider`, messages i18n…
+Options: `email_input`, `redirect_url`, `button_class`, `show_hint`, `show_divider`, i18n messages…
 
-### Compte - `_manage.html.twig`
+### Account — `_manage.html.twig`
 
 ```twig
 {% include '@Passkey/passkey/_manage.html.twig' with {
@@ -232,25 +214,23 @@ Options : `email_input`, `redirect_url`, `button_class`, `show_hint`, `show_divi
 } %}
 ```
 
-Options : `add_button_class`, `wrapper_class`, libellés i18n…
+Options: `add_button_class`, `wrapper_class`, i18n labels…
 
 ### Helpers
 
+| Helper                         | Description                 |
+| ------------------------------ | --------------------------- |
+| `passkey_credentials(user)`    | List of passkeys            |
+| `passkey_manager`              | `PasskeyManager` service    |
+| `passkey_redirect_path`        | Post-login redirect URL     |
+| `passkey_email_input_selector` | Email CSS selectors         |
+| `passkey_translation_domain`   | Translation domain          |
 
-| Helper                          | Description                |
-| ------------------------------- | -------------------------- |
-| `passkey_credentials(user)`    | Liste des passkeys         |
-| `passkey_manager`              | Service `PasskeyManager`   |
-| `passkey_redirect_path`        | URL de redirect post-login |
-| `passkey_email_input_selector` | Sélecteurs CSS email       |
-| `passkey_translation_domain`   | Domaine de traduction      |
-
-
-Traductions CTA : `PasskeyBundle` (`fr`, `en`, `es`, `de`).
+CTA translations: `PasskeyBundle` (`fr`, `en`, `es`, `de`).
 
 ### CSS
 
-Styles embarqués (`assets/styles/passkey.css`), chargés via Stimulus `autoimport`.
+Bundled styles (`assets/styles/passkey.css`), loaded via Stimulus `autoimport`.
 
 ```css
 .passkey-manage {
@@ -261,103 +241,79 @@ Styles embarqués (`assets/styles/passkey.css`), chargés via Stimulus `autoimpo
 
 ---
 
+## How it works
 
+1. Classic login (email / password).
+2. On the account page, **Add** Touch ID / Face ID / fingerprint.
+3. System dialog → public key stored in the DB (`web_authn_credential`).
+4. On `/login`, the biometric button calls `navigator.credentials.get` and authenticates the user.
 
-## Comment ça marche
+|       | Device unlock           | Site passkey                          |
+| ----- | ----------------------- | ------------------------------------- |
+| Role  | Opens the screen / Mac  | Signs in to the **app account**       |
+| Where | System settings         | Account page **on the site**          |
+| Tied to | The device            | Account + **hostname** (RP ID)        |
 
-1. Connexion classique (email / mot de passe).
-2. Sur la page compte, **Ajouter** Touch ID / Face ID / empreinte.
-3. Dialogue système → clé publique stockée en base (`web_authn_credential`).
-4. Sur `/login`, le bouton biométrie appelle `navigator.credentials.get` et authentifie l’utilisateur.
-
-
-|       | Déverrouillage appareil | Passkey du site                   |
-| ----- | ----------------------- | --------------------------------- |
-| Rôle  | Ouvre l’écran / le Mac  | Connecte au **compte applicatif** |
-| Où    | Réglages système        | Page compte **sur le site**       |
-| Lié à | L’appareil              | Compte + **hostname** (RP ID)     |
-
-
-Une passkey créée sur `localhost` **ne fonctionne pas** sur `xxx.ngrok-free.app` ni en prod (RP ID différent) : il faut réenregistrer sur chaque hostname.
+A passkey created on `localhost` **does not work** on `xxx.ngrok-free.app` or production (different RP ID): re-register on each hostname.
 
 ---
 
-
-
-## Plateformes
-
-
+## Platforms
 
 ### Mac (Touch ID)
 
-- Capteur Touch ID + Safari / Chrome récents.
-- Ouvrir le site en `http://localhost:…` ou `https://localhost:…` (**pas** `127.0.0.1`).
-- Pas de Face ID sur Mac.
-
-
+- Touch ID sensor + recent Safari / Chrome.
+- Open the site at `http://localhost:…` or `https://localhost:…` (**not** `127.0.0.1`).
+- No Face ID on Mac.
 
 ### iPhone / iPad (Face ID)
 
-- Safari (ou Chrome iOS / WebKit).
-- Même hostname qu’en login ; HTTPS public ou tunnel ngrok **sans** `--host-header=localhost`.
+- Safari (or Chrome iOS / WebKit).
+- Same hostname as login; public HTTPS or ngrok tunnel **without** `--host-header=localhost`.
 
+### Samsung / Android (fingerprint)
 
-
-### Samsung / Android (empreinte)
-
-- Passkeys web = **empreinte** (biométrie forte), pas la reconnaissance faciale d’écran.
-- Chrome / Samsung Internet en HTTPS.
-- Message « aucune biométrie » sur le login = **aucune passkey enregistrée** pour ce compte / appareil / hostname.
-
-
+- Web passkeys = **fingerprint** (strong biometrics), not lock-screen face unlock.
+- Chrome / Samsung Internet over HTTPS.
+- “No biometrics” on login = **no passkey registered** for this account / device / hostname.
 
 ### Windows Hello
 
-- Empreinte, PIN ou caméra selon le matériel ; Edge / Chrome.
+- Fingerprint, PIN, or camera depending on hardware; Edge / Chrome.
 
-
-| Appareil      | Libellé UI          | Méthode passkey |
+| Device        | UI label            | Passkey method  |
 | ------------- | ------------------- | --------------- |
-| Mac           | Touch ID            | Empreinte Mac   |
+| Mac           | Touch ID            | Mac fingerprint |
 | iPhone / iPad | Face ID             | Face / Touch ID |
-| Samsung       | Samsung Fingerprint | Empreinte       |
-| Android       | Fingerprint         | Empreinte       |
+| Samsung       | Samsung Fingerprint | Fingerprint     |
+| Android       | Fingerprint         | Fingerprint     |
 | Windows       | Windows Hello       | Hello           |
 
+---
+
+## Local dev & ngrok
+
+- **Forbidden:** `127.0.0.1`, bare IPs → invalid WebAuthn domain.
+- **OK:** `localhost`, public HTTPS hostname.
+- **ngrok:** do not force `Host: localhost`; the Host / `X-Forwarded-Host` seen by Symfony must be the public hostname.
+- In dev, `passkey:configure` may publish `config/packages/dev/framework.yaml` (`trusted_proxies`). **Do not reuse those values in prod** — see [SECURITY.md](SECURITY.md).
+
+**Web-only** passkeys do **not** require a Google Cloud / OAuth project. Google OAuth or Digital Asset Links only apply to Google Sign-In / native apps linked to the site.
 
 ---
 
+## Commands
 
-
-## Dev local & ngrok
-
-- **Interdit :** `127.0.0.1`, IP nues → domaine WebAuthn invalide.
-- **OK :** `localhost`, hostname HTTPS public.
-- **ngrok :** ne pas forcer `Host: localhost` ; le Host / `X-Forwarded-Host` vu par Symfony doit être le hostname public.
-- En dev, `passkey:configure` peut publier `config/packages/dev/framework.yaml` (`trusted_proxies`). **Ne pas réutiliser ces valeurs en prod** — voir [SECURITY.md](SECURITY.md).
-
-Les passkeys **web seules** n’exigent **pas** de projet Google Cloud / OAuth. OAuth Google ou Digital Asset Links ne concernent que Sign-In Google / apps natives liées au site.
+| Command             | Purpose                                         |
+| ------------------- | ----------------------------------------------- |
+| `passkey:configure` | Full host-app wiring                            |
+| `passkey:install`   | Creates only the `web_authn_credential` table   |
 
 ---
 
+## Migration from `touch-id-bundle`
 
-
-## Commandes
-
-
-| Commande             | Rôle                                            |
-| -------------------- | ----------------------------------------------- |
-| `passkey:configure` | Wiring complet de l’app hôte                    |
-| `passkey:install`   | Crée uniquement la table `web_authn_credential` |
-
-
----
-
-
-
-## Migration depuis `touch-id-bundle`
-
-Ancien package : `wpconsulting/touch-id-bundle` (abandonné).
+Previous package: `wpconsulting/touch-id-bundle` (abandoned).
 
 ```bash
 composer remove wpconsulting/touch-id-bundle
@@ -365,21 +321,18 @@ composer require wpconsulting/passkey-bundle:^3.0
 php bin/console passkey:configure
 ```
 
-Mettre à jour les includes Twig (`@Passkey/passkey/…`) et l’interface `PasskeyUserInterface`.
+Update Twig includes (`@Passkey/passkey/…`) and the `PasskeyUserInterface` interface.
 
-Détails : [CHANGELOG.md](CHANGELOG.md).
-
+Details: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
+## Security & contributing
 
-
-## Sécurité & contribution
-
-- Signalement : [SECURITY.md](SECURITY.md)
-- Changelog : [CHANGELOG.md](CHANGELOG.md)
-- Issues : [GitHub Issues](https://github.com/williamPeninon/SymfonyTouchID/issues)
-- Tests : `composer test`
+- Reporting: [SECURITY.md](SECURITY.md)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Issues: [GitHub Issues](https://github.com/williamPeninon/passkey-bundle/issues)
+- Tests: `composer test`
 
 ```bash
 composer install
@@ -388,8 +341,6 @@ composer test
 
 ---
 
-
-
-## Licence
+## License
 
 MIT © [WP Consulting](https://www.linkedin.com/in/william-peninon-cto-yuno)
