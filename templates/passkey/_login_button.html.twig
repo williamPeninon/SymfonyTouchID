@@ -23,6 +23,15 @@
     data-host-message="{{ (host_message|default('invalid_host'))|trans({}, tid_domain) }}"
     data-no-passkey-message="{{ (no_passkey_message|default('login_no_passkey'))|trans({}, tid_domain) }}"
     data-login-label-template="{{ (login_label_template|default('login_template'))|trans({}, tid_domain) }}"
+    data-hint-mac="{{ 'login_hint_mac'|trans({}, tid_domain) }}"
+    data-hint-iphone="{{ 'login_hint_iphone'|trans({}, tid_domain) }}"
+    data-hint-ipad="{{ 'login_hint_ipad'|trans({}, tid_domain) }}"
+    data-hint-samsung="{{ 'login_hint_samsung'|trans({}, tid_domain) }}"
+    data-hint-samsung-tablet="{{ 'login_hint_samsung_tablet'|trans({}, tid_domain) }}"
+    data-hint-android="{{ 'login_hint_android'|trans({}, tid_domain) }}"
+    data-hint-android-tablet="{{ 'login_hint_android_tablet'|trans({}, tid_domain) }}"
+    data-hint-windows="{{ 'login_hint_windows'|trans({}, tid_domain) }}"
+    data-hint-generic="{{ (hint_message|default('login_hint'))|trans({}, tid_domain) }}"
     hidden
 >
     <button
@@ -34,7 +43,7 @@
         <span data-passkey-login-target="label">{{ (login_label|default('login'))|trans({}, tid_domain) }}</span>
     </button>
     {% if show_hint|default(true) %}
-        <p class="{{ hint_class|default('auth-passkey-hint') }}">{{ (hint_message|default('login_hint'))|trans({}, tid_domain) }}</p>
+        <p class="{{ hint_class|default('auth-passkey-hint') }}" data-passkey-login-target="hint">{{ (hint_message|default('login_hint'))|trans({}, tid_domain) }}</p>
     {% endif %}
     <div class="passkey-alert passkey-alert--danger" data-passkey-login-target="error" hidden></div>
     {% if show_divider|default(true) %}

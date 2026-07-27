@@ -1,6 +1,6 @@
 {
   "name": "@wpconsulting/passkey-bundle",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "description": "WebAuthn / passkey Stimulus controllers (Touch ID, Face ID, Samsung fingerprint, Windows Hello)",
   "type": "module",
   "symfony": {

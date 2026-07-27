@@ -12,21 +12,39 @@ export function isMacPlatform() {
     return looksMac && !isIpadDesktop;
 }
 
+export function isIpadDevice() {
+    const ua = navigator.userAgent || '';
+    const platform = navigator.platform || navigator.userAgentData?.platform || '';
+    if (/iPad/.test(platform) || /iPad/.test(ua)) {
+        return true;
+    }
+    // iPadOS 13+ desktop mode reports as Mac with touch points.
+    return /Mac|Macintosh/.test(platform) && navigator.maxTouchPoints > 1;
+}
+
 export function isIosDevice() {
     const ua = navigator.userAgent || '';
     const platform = navigator.platform || navigator.userAgentData?.platform || '';
     if (/iPhone|iPod/.test(platform) || /iPhone|iPod/.test(ua)) {
         return true;
     }
-    if (/iPad/.test(platform) || /iPad/.test(ua)) {
-        return true;
-    }
-    // iPadOS 13+ desktop mode
-    return /Mac|Macintosh/.test(platform) && navigator.maxTouchPoints > 1;
+    return isIpadDevice();
 }
 
 export function isAndroidDevice() {
     return /Android/i.test(navigator.userAgent || '');
+}
+
+/** Best-effort Android tablet detection (phones usually include "Mobile"). */
+export function isAndroidTablet() {
+    if (!isAndroidDevice()) {
+        return false;
+    }
+    const ua = navigator.userAgent || '';
+    if (/Tablet|Tab\b|SM-T|Lenovo TB|Pad/i.test(ua)) {
+        return true;
+    }
+    return !/Mobile/i.test(ua);
 }
 
 export function isSamsungDevice() {
@@ -38,6 +56,41 @@ export function isSamsungDevice() {
 export function isWindowsDevice() {
     const platform = navigator.platform || navigator.userAgentData?.platform || '';
     return /Win/i.test(platform) || /Windows/i.test(navigator.userAgent || '');
+}
+
+/**
+ * Device kind for localized login hints.
+ * @returns {'mac'|'iphone'|'ipad'|'samsung'|'samsung_tablet'|'android'|'android_tablet'|'windows'|'generic'}
+ */
+export function detectPasskeyDeviceKind() {
+    if (isIpadDevice()) {
+        return 'ipad';
+    }
+    if (isIosDevice()) {
+        return 'iphone';
+    }
+    if (isMacPlatform()) {
+        return 'mac';
+    }
+    if (isSamsungDevice()) {
+        return isAndroidTablet() ? 'samsung_tablet' : 'samsung';
+    }
+    if (isAndroidDevice()) {
+        return isAndroidTablet() ? 'android_tablet' : 'android';
+    }
+    if (isWindowsDevice()) {
+        return 'windows';
+    }
+    return 'generic';
+}
+
+/**
+ * @param {Record<string, string>} messages map of device kind → hint text
+ * @returns {string}
+ */
+export function resolveLoginHint(messages = {}) {
+    const kind = detectPasskeyDeviceKind();
+    return messages[kind] || messages.generic || messages.default || '';
 }
 
 /** @deprecated Prefer supportsPlatformBiometricUi() — kept for backward compatibility. */

@@ -9,6 +9,7 @@ import {
     localhostSuggestionUrl,
     preferredBiometricLabel,
     preparePublicKeyOptions,
+    resolveLoginHint,
     supportsPlatformBiometricUi,
     isPlatformAuthenticatorAvailable,
     isWebAuthnAvailable,
@@ -23,7 +24,7 @@ export default class extends Controller {
         redirectUrl: { type: String, default: '/' },
     };
 
-    static targets = ['button', 'error', 'divider'];
+    static targets = ['button', 'error', 'divider', 'hint'];
 
     async connect() {
         if (!supportsPlatformBiometricUi() || !isWebAuthnAvailable()) {
@@ -39,6 +40,7 @@ export default class extends Controller {
 
         this.element.hidden = false;
         this.applyBiometricLabel();
+        this.applyDeviceHint();
 
         if (isInvalidWebAuthnHost()) {
             this.showError(this.hostErrorMessage());
@@ -51,6 +53,27 @@ export default class extends Controller {
         if (labelEl) {
             const template = this.element.dataset.loginLabelTemplate || 'Sign in with %biometric%';
             labelEl.textContent = template.replace('%biometric%', label);
+        }
+    }
+
+    applyDeviceHint() {
+        if (!this.hasHintTarget) {
+            return;
+        }
+        const ds = this.element.dataset;
+        const hint = resolveLoginHint({
+            mac: ds.hintMac,
+            iphone: ds.hintIphone,
+            ipad: ds.hintIpad,
+            samsung: ds.hintSamsung,
+            samsung_tablet: ds.hintSamsungTablet,
+            android: ds.hintAndroid,
+            android_tablet: ds.hintAndroidTablet,
+            windows: ds.hintWindows,
+            generic: ds.hintGeneric,
+        });
+        if (hint) {
+            this.hintTarget.textContent = hint;
         }
     }
 

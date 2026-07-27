@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.4] — 2026-07-27
+
+### Changed
+
+- Login hint adapts to the device (Mac, iPhone, iPad, Samsung phone/tablet, Android phone/tablet, Windows).
+
+---
+
 ## [3.0.3] — 2026-07-27
 
 ### Docs
