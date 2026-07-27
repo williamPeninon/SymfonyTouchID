@@ -4,8 +4,8 @@
 
 | Version | Supported |
 | ------- | --------- |
-| 1.0.x (`passkey-bundle`) | Yes |
-| `touch-id-bundle` (legacy) | No — migrate to `passkey-bundle` |
+| 3.0.x (`passkey-bundle`) | Yes |
+| `touch-id-bundle` (legacy) | No — migrate to `passkey-bundle` ^3.0 |
 
 ## Reporting a vulnerability
 

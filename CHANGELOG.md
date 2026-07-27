@@ -1,25 +1,24 @@
 # Changelog
 
-All notable changes to `wpconsulting/passkey-bundle` are documented in this file.
+All notable changes to this package are documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.0.0] — 2026-07-27
+## [3.0.0] — 2026-07-27
 
-First release under the **`wpconsulting/passkey-bundle`** name.
+### Renamed package
 
-Replaces the former package **`wpconsulting/touch-id-bundle`** (Mac-oriented name). Same WebAuthn platform passkeys: Touch ID, Face ID, Samsung fingerprint, Windows Hello.
+**`wpconsulting/touch-id-bundle` → `wpconsulting/passkey-bundle`**
 
-### Package rename
+The Mac-centric “Touch ID” name is dropped. The bundle still covers platform passkeys: Touch ID, Face ID, Samsung fingerprint, Windows Hello.
 
-| Before (`touch-id-bundle`) | After (`passkey-bundle`) |
+| Before | After |
 |---|---|
 | `wpconsulting/touch-id-bundle` | `wpconsulting/passkey-bundle` |
 | `WpConsulting\TouchIdBundle\` | `WpConsulting\PasskeyBundle\` |
-| `TouchIdBundle` | `PasskeyBundle` |
 | `TouchIdUserInterface` | `PasskeyUserInterface` |
 | `wp_consulting_touch_id` | `wp_consulting_passkey` |
 | `touch-id:configure` | `passkey:configure` |
@@ -27,24 +26,28 @@ Replaces the former package **`wpconsulting/touch-id-bundle`** (Mac-oriented nam
 | `touch_id_credentials()` | `passkey_credentials()` |
 | `@wpconsulting/touch-id-bundle` | `@wpconsulting/passkey-bundle` |
 
-API routes stay under `/webauthn/*`. Entity table stays `web_authn_credential`.
+Unchanged: `/webauthn/*` routes, `web_authn_credential` table.
 
-### Features (carried from touch-id-bundle 2.x)
-
-- `symfony-bundle` (no Composer plugin)
-- `passkey:configure` / `passkey:install`
-- Stimulus login/register + scoped CSS
-- Twig partials + i18n (`fr` / `en` / `es` / `de`)
-- PHPUnit + GitHub Actions CI
-
-### Migration from `touch-id-bundle`
+### Migration
 
 ```bash
 composer remove wpconsulting/touch-id-bundle
-composer require wpconsulting/passkey-bundle:^1.0
+composer require wpconsulting/passkey-bundle:^3.0
 php bin/console passkey:configure
 ```
 
-Update Twig includes and `PasskeyUserInterface` on your User entity (configure can re-wire the interface).
+Update Twig includes to `@Passkey/passkey/…`.
 
-Mark `wpconsulting/touch-id-bundle` as **abandoned** on Packagist with replacement `wpconsulting/passkey-bundle`.
+On Packagist, mark `touch-id-bundle` as **abandoned** with replacement `wpconsulting/passkey-bundle`.
+
+---
+
+## Previous line (`touch-id-bundle`)
+
+| Version | Notes |
+|---|---|
+| 2.0.x | `symfony-bundle` + `touch-id:configure` |
+| 1.6.x | Short transition (superseded by 2.0) |
+| 1.5.x | Composer plugin era |
+
+See git tags `v2.0.0`, `v1.6.*`, `v1.5.*`.

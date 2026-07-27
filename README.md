@@ -349,7 +349,7 @@ Ancien package : `wpconsulting/passkey-bundle` (abandonné).
 
 ```bash
 composer remove wpconsulting/passkey-bundle
-composer require wpconsulting/passkey-bundle:^1.0
+composer require wpconsulting/passkey-bundle:^3.0
 php bin/console passkey:configure
 ```
 
