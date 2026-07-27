@@ -6,11 +6,12 @@
     "recipes": {
         "wpconsulting/touch-id-bundle": [
             "1.0",
-            "1.5"
+            "1.5",
+            "2.0"
         ]
     },
     "branch": "main",
-    "is_contrib": false,
+    "is_contrib": true,
     "_links": {
         "repository": "github.com/williamPeninon/SymfonyTouchID",
         "origin_template": "{package}:{version}@github.com/williamPeninon/SymfonyTouchID:main",

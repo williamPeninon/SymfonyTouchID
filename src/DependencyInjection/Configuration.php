@@ -22,7 +22,7 @@ final class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('user_repository')
                     ->defaultNull()
-                    ->setDeprecated('wpconsulting/touch-id-bundle', '1.6', 'The "user_repository" option is ignored; users are loaded via EntityManager and user_class.')
+                    ->setDeprecated('wpconsulting/touch-id-bundle', '2.0', 'The "user_repository" option is ignored; users are loaded via EntityManager and user_class.')
                     ->info('Deprecated — ignored. Kept so existing YAML still loads.')
                 ->end()
                 ->scalarNode('user_identifier_field')

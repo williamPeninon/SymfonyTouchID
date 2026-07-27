@@ -1,7 +1,6 @@
 # config/packages/wp_consulting_touch_id.yaml
 wp_consulting_touch_id:
-    # Filled by the Composer plugin prompt when interactive;
-    # otherwise set to your User FQCN (e.g. App\Entity\User).
+    # Set by touch-id:configure, or manually to your User FQCN:
     user_class: ~
     # Must be the entity CLASS FQCN, not a namespace:
     # user_class: App\Entity\User
