@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.7] — 2026-07-27
+
+### Changed
+
+- Login CTA: fingerprint icon via CSS mask on `.auth-passkey-btn`.
+
+---
+
 ## [3.0.6] — 2026-07-27
 
 ### Changed
