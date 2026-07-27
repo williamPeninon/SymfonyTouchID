@@ -380,4 +380,4 @@ composer test
 
 ## Licence
 
-MIT © [WP Consulting](https://www.linkedin.com/in/william-peninon-cto-yuno) · [wpconsulting.fr](https://wpconsulting.fr)
+MIT © [WP Consulting](https://www.linkedin.com/in/william-peninon-cto-yuno)

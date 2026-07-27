@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.1] — 2026-07-27
+
+### Changed
+
+- Remove `wpconsulting.fr` links from README / docs (LinkedIn only).
+
+---
+
 ## [3.0.0] — 2026-07-27
 
 ### Renamed package

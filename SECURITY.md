@@ -11,7 +11,7 @@
 
 Please **do not** open a public GitHub issue for security reports.
 
-Email **security concerns** related to this bundle via the contact form on [wpconsulting.fr](https://wpconsulting.fr), with subject `[SECURITY] passkey-bundle`.
+Contact **security concerns** related to this bundle via [LinkedIn](https://www.linkedin.com/in/william-peninon-cto-yuno), with subject `[SECURITY] passkey-bundle`.
 
 Include:
 - Affected version / commit
