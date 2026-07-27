@@ -4,16 +4,14 @@
 
 | Version | Supported |
 | ------- | --------- |
-| 2.0.x   | Yes       |
-| 1.6.x   | Security fixes only (limited) |
-| 1.5.x   | No        |
-| < 1.5   | No        |
+| 1.0.x (`passkey-bundle`) | Yes |
+| `touch-id-bundle` (legacy) | No — migrate to `passkey-bundle` |
 
 ## Reporting a vulnerability
 
 Please **do not** open a public GitHub issue for security reports.
 
-Email **security concerns** related to this bundle via the contact form on [wpconsulting.fr](https://wpconsulting.fr), with subject `[SECURITY] touch-id-bundle`.
+Email **security concerns** related to this bundle via the contact form on [wpconsulting.fr](https://wpconsulting.fr), with subject `[SECURITY] passkey-bundle`.
 
 Include:
 - Affected version / commit

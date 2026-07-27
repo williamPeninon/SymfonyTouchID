@@ -1,6 +1,6 @@
-# config/packages/wp_consulting_touch_id.yaml
-wp_consulting_touch_id:
-    # Set by touch-id:configure, or manually to your User FQCN:
+# config/packages/wp_consulting_passkey.yaml
+wp_consulting_passkey:
+    # Set by passkey:configure, or manually to your User FQCN:
     user_class: ~
     # Must be the entity CLASS FQCN, not a namespace:
     # user_class: App\Entity\User
@@ -12,7 +12,7 @@ wp_consulting_touch_id:
     default_redirect_route: app_account
     # Optional: App\Security\LoginSuccessHandler
     # success_handler: null
-    translation_domain: TouchIdBundle
+    translation_domain: PasskeyBundle
     translation_prefix: ''
     # CSS selectors to read the email on the login form (comma-separated)
     email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'

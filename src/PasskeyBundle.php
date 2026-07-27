@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle;
+namespace WpConsulting\PasskeyBundle;
 
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use WpConsulting\TouchIdBundle\DependencyInjection\Compiler\ResolveTouchIdUserTargetEntityPass;
-use WpConsulting\TouchIdBundle\DependencyInjection\TouchIdExtension;
+use WpConsulting\PasskeyBundle\DependencyInjection\Compiler\ResolvePasskeyUserTargetEntityPass;
+use WpConsulting\PasskeyBundle\DependencyInjection\PasskeyExtension;
 
-final class TouchIdBundle extends Bundle
+final class PasskeyBundle extends Bundle
 {
     public function build(ContainerBuilder $container): void
     {
@@ -21,7 +21,7 @@ final class TouchIdBundle extends Bundle
         // Priority > 0: run before Doctrine RegisterEventListenersAndSubscribersPass (priority 0)
         // so resolve-target listener tags are registered on the event manager.
         $container->addCompilerPass(
-            new ResolveTouchIdUserTargetEntityPass(),
+            new ResolvePasskeyUserTargetEntityPass(),
             PassConfig::TYPE_BEFORE_OPTIMIZATION,
             10,
         );
@@ -30,11 +30,11 @@ final class TouchIdBundle extends Bundle
         // even when the host app only maps App\Entity.
         if (class_exists(DoctrineOrmMappingsPass::class)) {
             $container->addCompilerPass(DoctrineOrmMappingsPass::createAttributeMappingDriver(
-                ['WpConsulting\TouchIdBundle\Entity'],
+                ['WpConsulting\PasskeyBundle\Entity'],
                 [realpath(__DIR__.'/Entity') ?: (__DIR__.'/Entity')],
                 [],
                 false,
-                ['TouchIdBundle' => 'WpConsulting\TouchIdBundle\Entity'],
+                ['PasskeyBundle' => 'WpConsulting\PasskeyBundle\Entity'],
             ));
         }
     }
@@ -46,6 +46,6 @@ final class TouchIdBundle extends Bundle
 
     public function getContainerExtension(): ?ExtensionInterface
     {
-        return $this->extension ??= new TouchIdExtension();
+        return $this->extension ??= new PasskeyExtension();
     }
 }

@@ -1,0 +1,279 @@
+/* Default styles for @Passkey partials — scoped, override via CSS variables. */
+.passkey-login,
+.passkey-manage {
+    --pk-ink: #1a2332;
+    --pk-muted: #5c6b7a;
+    --pk-surface: #eef3f6;
+    --pk-surface-strong: #e2eaf0;
+    --pk-accent: #0f766e;
+    --pk-accent-hover: #0d9488;
+    --pk-accent-soft: color-mix(in srgb, var(--pk-accent) 12%, white);
+    --pk-danger: #b42318;
+    --pk-danger-soft: #fef3f2;
+    --pk-ok: #067647;
+    --pk-ok-soft: #ecfdf3;
+    --pk-info: #175cd3;
+    --pk-info-soft: #eff8ff;
+    --pk-border: #d0dae3;
+    --pk-radius: 10px;
+    --pk-font: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    --pk-shadow: 0 1px 2px rgb(26 35 50 / 6%), 0 8px 24px rgb(26 35 50 / 6%);
+
+    box-sizing: border-box;
+    font-family: var(--pk-font);
+    color: var(--pk-ink);
+    line-height: 1.45;
+}
+
+.passkey-login *,
+.passkey-login *::before,
+.passkey-login *::after,
+.passkey-manage *,
+.passkey-manage *::before,
+.passkey-manage *::after {
+    box-sizing: border-box;
+}
+
+/* —— Login —— */
+.passkey-login {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.passkey-login .auth-passkey-btn,
+.passkey-manage .passkey-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.7rem 1.15rem;
+    border: 1px solid transparent;
+    border-radius: var(--pk-radius);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--pk-accent-hover) 18%, var(--pk-accent)), var(--pk-accent));
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: var(--pk-shadow);
+    transition: background 160ms ease, transform 120ms ease, box-shadow 160ms ease, opacity 120ms ease;
+}
+
+.passkey-login .auth-passkey-btn:hover,
+.passkey-manage .passkey-btn:hover {
+    background: var(--pk-accent-hover);
+}
+
+.passkey-login .auth-passkey-btn:active,
+.passkey-manage .passkey-btn:active {
+    transform: translateY(1px);
+}
+
+.passkey-login .auth-passkey-btn:disabled,
+.passkey-manage .passkey-btn:disabled,
+.passkey-manage .passkey-btn--danger:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.passkey-login .auth-passkey-btn.is-loading,
+.passkey-manage .passkey-btn.is-loading {
+    position: relative;
+    color: transparent;
+}
+
+.passkey-login .auth-passkey-btn.is-loading::after,
+.passkey-manage .passkey-btn.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid rgb(255 255 255 / 35%);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pk-spin 0.7s linear infinite;
+}
+
+.passkey-login .auth-passkey-hint {
+    margin: 0;
+    color: var(--pk-muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.passkey-login .auth-divider {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0 0;
+    color: var(--pk-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.passkey-login .auth-divider::before,
+.passkey-login .auth-divider::after {
+    content: "";
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--pk-border), transparent);
+}
+
+.passkey-login .auth-divider span {
+    padding: 0 0.15rem;
+}
+
+.passkey-login .passkey-alert,
+.passkey-manage .passkey-alert {
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--pk-border);
+    border-radius: calc(var(--pk-radius) - 2px);
+    background: var(--pk-surface);
+    color: var(--pk-ink);
+    font-size: 0.9rem;
+}
+
+.passkey-login .passkey-alert--danger,
+.passkey-manage .passkey-alert--danger {
+    border-color: color-mix(in srgb, var(--pk-danger) 28%, white);
+    background: var(--pk-danger-soft);
+    color: var(--pk-danger);
+}
+
+.passkey-login .passkey-alert--success,
+.passkey-manage .passkey-alert--success {
+    border-color: color-mix(in srgb, var(--pk-ok) 28%, white);
+    background: var(--pk-ok-soft);
+    color: var(--pk-ok);
+}
+
+.passkey-manage .passkey-alert--info {
+    border-color: color-mix(in srgb, var(--pk-info) 28%, white);
+    background: var(--pk-info-soft);
+    color: var(--pk-info);
+}
+
+/* —— Manage / register —— */
+.passkey-manage {
+    display: grid;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--pk-border);
+    border-radius: calc(var(--pk-radius) + 4px);
+    background:
+        linear-gradient(165deg, #fff 0%, var(--pk-surface) 100%);
+    box-shadow: var(--pk-shadow);
+}
+
+.passkey-manage__panel {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.passkey-manage__empty,
+.passkey-manage__hint {
+    margin: 0;
+    color: var(--pk-muted);
+    font-size: 0.9rem;
+}
+
+.passkey-manage__hint {
+    font-size: 0.8rem;
+}
+
+.passkey-manage__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--pk-border);
+    border-radius: var(--pk-radius);
+    overflow: hidden;
+    background: #fff;
+}
+
+.passkey-manage .webauthn-credential {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--pk-border);
+}
+
+.passkey-manage .webauthn-credential:last-child {
+    border-bottom: 0;
+}
+
+.passkey-manage .webauthn-credential__meta {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.passkey-manage .webauthn-credential__meta strong {
+    font-weight: 600;
+    color: var(--pk-ink);
+}
+
+.passkey-manage .webauthn-credential__meta span,
+.passkey-manage .webauthn-credential__date {
+    color: var(--pk-muted);
+    font-size: 0.8rem;
+}
+
+.passkey-manage .passkey-btn--danger {
+    width: auto;
+    min-height: 2rem;
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    border-color: color-mix(in srgb, var(--pk-danger) 35%, white);
+    color: var(--pk-danger);
+    box-shadow: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.passkey-manage .passkey-btn--danger:hover {
+    background: var(--pk-danger-soft);
+    border-color: var(--pk-danger);
+}
+
+.passkey-manage__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.passkey-manage__actions .passkey-btn {
+    width: auto;
+    min-width: 12rem;
+}
+
+@keyframes pk-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 480px) {
+    .passkey-manage .webauthn-credential {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .passkey-manage__actions .passkey-btn {
+        width: 100%;
+        min-width: 0;
+    }
+}

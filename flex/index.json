@@ -1,13 +1,11 @@
 {
     "aliases": {
-        "touch-id": "wpconsulting/touch-id-bundle",
-        "webauthn-touch-id": "wpconsulting/touch-id-bundle"
+        "passkey": "wpconsulting/passkey-bundle",
+        "webauthn-passkey": "wpconsulting/passkey-bundle"
     },
     "recipes": {
-        "wpconsulting/touch-id-bundle": [
-            "1.0",
-            "1.5",
-            "2.0"
+        "wpconsulting/passkey-bundle": [
+            "1.0"
         ]
     },
     "branch": "main",

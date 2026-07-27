@@ -1,34 +1,34 @@
 {
-    "name": "@wpconsulting/touch-id-bundle",
-    "version": "2.0.0",
-    "description": "WebAuthn / passkey Stimulus controllers (Touch ID, Face ID, Samsung fingerprint, Windows Hello)",
-    "type": "module",
-    "symfony": {
-        "controllers": {
-            "login": {
-                "main": "controllers/login_controller.js",
-                "name": "webauthn-login",
-                "fetch": "lazy",
-                "enabled": true,
-                "autoimport": {
-                    "@wpconsulting/touch-id-bundle/styles/touch-id.css": true
-                }
-            },
-            "register": {
-                "main": "controllers/register_controller.js",
-                "name": "webauthn-register",
-                "fetch": "lazy",
-                "enabled": true,
-                "autoimport": {
-                    "@wpconsulting/touch-id-bundle/styles/touch-id.css": true
-                }
-            }
-        },
-        "importmap": {
-            "@hotwired/stimulus": "^3.0.0"
+  "name": "@wpconsulting/passkey-bundle",
+  "version": "1.0.0",
+  "description": "WebAuthn / passkey Stimulus controllers (Touch ID, Face ID, Samsung fingerprint, Windows Hello)",
+  "type": "module",
+  "symfony": {
+    "controllers": {
+      "login": {
+        "main": "controllers/login_controller.js",
+        "name": "passkey-login",
+        "fetch": "lazy",
+        "enabled": true,
+        "autoimport": {
+          "@wpconsulting/passkey-bundle/styles/passkey.css": true
         }
+      },
+      "register": {
+        "main": "controllers/register_controller.js",
+        "name": "passkey-register",
+        "fetch": "lazy",
+        "enabled": true,
+        "autoimport": {
+          "@wpconsulting/passkey-bundle/styles/passkey.css": true
+        }
+      }
     },
-    "peerDependencies": {
-        "@hotwired/stimulus": "^3.0.0"
+    "importmap": {
+      "@hotwired/stimulus": "^3.0.0"
     }
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.0.0"
+  }
 }

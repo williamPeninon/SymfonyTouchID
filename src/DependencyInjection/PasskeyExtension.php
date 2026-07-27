@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\DependencyInjection;
+namespace WpConsulting\PasskeyBundle\DependencyInjection;
 
 use Doctrine\ORM\Events;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
@@ -14,13 +14,13 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Controller\TouchIdController;
-use WpConsulting\TouchIdBundle\Doctrine\ResolveTouchIdUserListener;
-use WpConsulting\TouchIdBundle\Service\TouchIdManager;
-use WpConsulting\TouchIdBundle\Twig\TouchIdTwigExtension;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
+use WpConsulting\PasskeyBundle\Controller\PasskeyController;
+use WpConsulting\PasskeyBundle\Doctrine\ResolvePasskeyUserListener;
+use WpConsulting\PasskeyBundle\Service\PasskeyManager;
+use WpConsulting\PasskeyBundle\Twig\PasskeyTwigExtension;
 
-final class TouchIdExtension extends Extension implements PrependExtensionInterface
+final class PasskeyExtension extends Extension implements PrependExtensionInterface
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -33,17 +33,17 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
 
         $configured = $this->isFullyConfigured($config);
 
-        $container->setParameter('wp_consulting_touch_id.configured', $configured);
-        $container->setParameter('wp_consulting_touch_id.user_class', $userClass);
+        $container->setParameter('wp_consulting_passkey.configured', $configured);
+        $container->setParameter('wp_consulting_passkey.user_class', $userClass);
 
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2).'/config'));
-        // Configure command must work before user_class / TouchIdUserInterface are ready.
+        // Configure command must work before user_class / PasskeyUserInterface are ready.
         $loader->load('services_installer.yaml');
 
         // Register as soon as user_class is a real class (even before it implements the interface),
         // so doctrine:schema:validate / migrations:diff can resolve the ManyToOne FK.
         if (\is_string($userClass) && $userClass !== '' && class_exists($userClass)) {
-            $this->registerResolveTouchIdUserListener($container, $userClass);
+            $this->registerResolvePasskeyUserListener($container, $userClass);
         }
 
         // Allow the host app to boot (asset-map:compile, cache:clear) before User is ready.
@@ -53,16 +53,16 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
 
         $loader->load('services.yaml');
 
-        $container->getDefinition(TouchIdManager::class)
+        $container->getDefinition(PasskeyManager::class)
             ->setPublic(true)
             ->setArgument('$rpName', $config['rp_name'])
             ->setArgument('$userClass', $config['user_class'])
             ->setArgument('$userIdentifierField', $config['user_identifier_field'])
             ->setArgument('$defaultCredentialName', $config['default_credential_name']);
 
-        $container->setAlias('touch_id.manager', TouchIdManager::class)->setPublic(true);
+        $container->setAlias('passkey.manager', PasskeyManager::class)->setPublic(true);
 
-        $controller = $container->getDefinition(TouchIdController::class);
+        $controller = $container->getDefinition(PasskeyController::class);
         $controller
             ->setArgument('$loginAuthenticator', $config['login_authenticator'])
             ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
@@ -75,21 +75,21 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             $controller->setArgument('$successHandler', null);
         }
 
-        if ($container->hasDefinition(TouchIdTwigExtension::class)) {
-            $container->getDefinition(TouchIdTwigExtension::class)
+        if ($container->hasDefinition(PasskeyTwigExtension::class)) {
+            $container->getDefinition(PasskeyTwigExtension::class)
                 ->setArgument('$defaultRedirectRoute', $config['default_redirect_route'])
                 ->setArgument('$emailInputSelector', $config['email_input_selector'])
                 ->setArgument('$translationDomain', $config['translation_domain']);
         }
     }
 
-    private function registerResolveTouchIdUserListener(ContainerBuilder $container, string $userClass): void
+    private function registerResolvePasskeyUserListener(ContainerBuilder $container, string $userClass): void
     {
-        if ($container->hasDefinition('touch_id.doctrine.resolve_target_user')) {
+        if ($container->hasDefinition('passkey.doctrine.resolve_target_user')) {
             return;
         }
 
-        $definition = new Definition(ResolveTouchIdUserListener::class);
+        $definition = new Definition(ResolvePasskeyUserListener::class);
         $definition->setArgument('$userClass', $userClass);
         $definition->setPublic(false);
         $definition->addTag('doctrine.event_listener', [
@@ -101,7 +101,7 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             'priority' => 256,
         ]);
 
-        $container->setDefinition('touch_id.doctrine.resolve_target_user', $definition);
+        $container->setDefinition('passkey.doctrine.resolve_target_user', $definition);
     }
 
     private function assertValidUserClass(string $userClass): void
@@ -111,7 +111,7 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         }
 
         throw new InvalidConfigurationException(sprintf(
-            'wp_consulting_touch_id.user_class "%s" is not an existing PHP class. '
+            'wp_consulting_passkey.user_class "%s" is not an existing PHP class. '
             .'Use the full entity FQCN (e.g. App\\Iam\\Auth\\Entity\\User), not a namespace like App\\Iam\\Auth\\Entity.',
             $userClass,
         ));
@@ -127,7 +127,7 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         return \is_string($userClass)
             && $userClass !== ''
             && class_exists($userClass)
-            && is_a($userClass, TouchIdUserInterface::class, true);
+            && is_a($userClass, PasskeyUserInterface::class, true);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -141,7 +141,7 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
             $container->prependExtensionConfig('doctrine', [
                 'orm' => [
                     'resolve_target_entities' => [
-                        TouchIdUserInterface::class => $config['user_class'],
+                        PasskeyUserInterface::class => $config['user_class'],
                     ],
                 ],
             ]);
@@ -158,7 +158,7 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
         if (interface_exists(AssetMapperInterface::class)) {
             $frameworkPrepend['asset_mapper'] = [
                 'paths' => [
-                    $bundleRoot.'/assets' => '@wpconsulting/touch-id-bundle',
+                    $bundleRoot.'/assets' => '@wpconsulting/passkey-bundle',
                 ],
             ];
         }
@@ -167,13 +167,13 @@ final class TouchIdExtension extends Extension implements PrependExtensionInterf
 
         $container->prependExtensionConfig('twig', [
             'paths' => [
-                $bundleRoot.'/templates' => 'TouchId',
+                $bundleRoot.'/templates' => 'Passkey',
             ],
         ]);
     }
 
     public function getAlias(): string
     {
-        return 'wp_consulting_touch_id';
+        return 'wp_consulting_passkey';
     }
 }

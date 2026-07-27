@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Tests\DependencyInjection;
+namespace WpConsulting\PasskeyBundle\Tests\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
-use WpConsulting\TouchIdBundle\DependencyInjection\Configuration;
+use WpConsulting\PasskeyBundle\DependencyInjection\Configuration;
 
 final class ConfigurationTest extends TestCase
 {
@@ -17,7 +17,7 @@ final class ConfigurationTest extends TestCase
 
         self::assertNull($config['user_class']);
         self::assertSame('email', $config['user_identifier_field']);
-        self::assertSame('TouchIdBundle', $config['translation_domain']);
+        self::assertSame('PasskeyBundle', $config['translation_domain']);
         self::assertSame('form_login', $config['login_authenticator']);
     }
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Repository;
+namespace WpConsulting\PasskeyBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Entity\WebAuthnCredential;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
+use WpConsulting\PasskeyBundle\Entity\WebAuthnCredential;
 
 /**
  * @extends ServiceEntityRepository<WebAuthnCredential>
@@ -27,7 +27,7 @@ class WebAuthnCredentialRepository extends ServiceEntityRepository
     /**
      * @return list<WebAuthnCredential>
      */
-    public function findByUser(TouchIdUserInterface $user): array
+    public function findByUser(PasskeyUserInterface $user): array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.user = :user')

@@ -1,8 +1,8 @@
-# WP Consulting Touch ID Bundle
+# WP Consulting Passkey Bundle
 
-[CI](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml)
-[Latest Stable Version](https://packagist.org/packages/wpconsulting/touch-id-bundle)
-[License](LICENSE)
+[![CI](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml/badge.svg)](https://github.com/williamPeninon/SymfonyTouchID/actions/workflows/ci.yml)
+[![Latest Stable Version](https://img.shields.io/packagist/v/wpconsulting/passkey-bundle.svg)](https://packagist.org/packages/wpconsulting/passkey-bundle)
+[![License](https://img.shields.io/packagist/l/wpconsulting/passkey-bundle.svg)](LICENSE)
 
 Bundle Symfony pour l’authentification **WebAuthn / passkeys** via l’authenticator plateforme de l’appareil :
 
@@ -34,8 +34,8 @@ Bundle Symfony pour l’authentification **WebAuthn / passkeys** via l’authent
 ## Installation rapide
 
 ```bash
-composer require wpconsulting/touch-id-bundle
-php bin/console touch-id:configure
+composer require wpconsulting/passkey-bundle
+php bin/console passkey:configure
 ```
 
 Puis ajoutez les partials Twig (seul câblage manuel restant) :
@@ -43,35 +43,35 @@ Puis ajoutez les partials Twig (seul câblage manuel restant) :
 **Login**
 
 ```twig
-{% include '@TouchId/touch_id/_login_button.html.twig' %}
+{% include '@Passkey/passkey/_login_button.html.twig' %}
 ```
 
 **Compte (gestion des passkeys)**
 
 ```twig
-{% include '@TouchId/touch_id/_manage.html.twig' with {
-    credentials: touch_id_credentials(app.user)
+{% include '@Passkey/passkey/_manage.html.twig' with {
+    credentials: passkey_credentials(app.user)
 } %}
 ```
 
 
 
-### Ce que fait `touch-id:configure`
+### Ce que fait `passkey:configure`
 
-- publie `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml`
+- publie `config/packages/wp_consulting_passkey.yaml` et `config/routes/passkey.yaml`
 - publie `config/packages/dev/framework.yaml` (`trusted_proxies` pour ngrok — **dev only**)
 - enregistre le bundle dans `config/bundles.php` si besoin
 - demande `user_class` + `user_identifier_field`
-- implémente `TouchIdUserInterface` sur l’entité User
+- implémente `PasskeyUserInterface` sur l’entité User
 - active les contrôleurs Stimulus dans `assets/controllers.json`
 - ajoute `PUBLIC_ACCESS` pour `^/webauthn/login`
-- crée la table `web_authn_credential` (`touch-id:install` / migrations)
+- crée la table `web_authn_credential` (`passkey:install` / migrations)
 
 ```bash
 # Exemples
-php bin/console touch-id:configure --user-class=App\\Entity\\User
-php bin/console touch-id:configure --no-db
-php bin/console touch-id:configure -n   # non interactif si user_class déjà dans le YAML
+php bin/console passkey:configure --user-class=App\\Entity\\User
+php bin/console passkey:configure --no-db
+php bin/console passkey:configure -n   # non interactif si user_class déjà dans le YAML
 ```
 
 
@@ -93,7 +93,7 @@ Pour copier aussi les YAML via Symfony Flex :
 }
 ```
 
-Sans endpoint custom, Flex peut afficher `auto-generated recipe` : ce n’est pas bloquant, `touch-id:configure` suffit.
+Sans endpoint custom, Flex peut afficher `auto-generated recipe` : ce n’est pas bloquant, `passkey:configure` suffit.
 
 ---
 
@@ -102,15 +102,15 @@ Sans endpoint custom, Flex peut afficher `auto-generated recipe` : ce n’est pa
 ## Configuration
 
 ```yaml
-# config/packages/wp_consulting_touch_id.yaml
-wp_consulting_touch_id:
+# config/packages/wp_consulting_passkey.yaml
+wp_consulting_passkey:
     user_class: App\Entity\User          # FQCN de l’entité, pas un namespace
     user_identifier_field: email         # champ Doctrine pour le lookup login
     rp_name: 'My App'
     login_authenticator: form_login
     default_redirect_route: app_account
     # success_handler: App\Security\LoginSuccessHandler
-    translation_domain: TouchIdBundle
+    translation_domain: PasskeyBundle
     translation_prefix: ''
     email_input_selector: '#username, input[name="_username"], input[name="email"], input[type="email"]'
 ```
@@ -118,7 +118,7 @@ wp_consulting_touch_id:
 
 | Option                   | Rôle                                                     |
 | ------------------------ | -------------------------------------------------------- |
-| `user_class`             | Entité User (doit implémenter `TouchIdUserInterface`)    |
+| `user_class`             | Entité User (doit implémenter `PasskeyUserInterface`)    |
 | `user_identifier_field`  | Champ utilisé au login WebAuthn (`email`, `username`, …) |
 | `rp_name`                | Nom affiché dans le dialogue passkey                     |
 | `login_authenticator`    | Authenticator Security passé à `Security::login()`       |
@@ -127,14 +127,14 @@ wp_consulting_touch_id:
 | `email_input_selector`   | Sélecteurs CSS du champ email sur le formulaire login    |
 
 
-Tant que `user_class` n’est pas une classe valide implémentant `TouchIdUserInterface`, les services métier ne sont pas câblés : `cache:clear` / `asset-map:compile` restent possibles. La commande `touch-id:configure` est **toujours** disponible.
+Tant que `user_class` n’est pas une classe valide implémentant `PasskeyUserInterface`, les services métier ne sont pas câblés : `cache:clear` / `asset-map:compile` restent possibles. La commande `passkey:configure` est **toujours** disponible.
 
 ### User
 
 ```php
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
 
-class User implements UserInterface, PasswordAuthenticatedUserInterface, TouchIdUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, PasskeyUserInterface
 {
     public function getUserId(): mixed
     {
@@ -157,7 +157,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TouchId
 
 ### Security / firewalls
 
-`touch-id:configure` ajoute :
+`passkey:configure` ajoute :
 
 ```yaml
 access_control:
@@ -180,7 +180,7 @@ Sinon la session créée sur `/webauthn/*` n’est pas vue par l’admin → 401
 ### Base de données
 
 ```bash
-php bin/console touch-id:install
+php bin/console passkey:install
 # ou
 php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate
@@ -190,7 +190,7 @@ Vérification :
 
 ```bash
 php bin/console doctrine:mapping:info
-# → WpConsulting\TouchIdBundle\Entity\WebAuthnCredential
+# → WpConsulting\PasskeyBundle\Entity\WebAuthnCredential
 ```
 
 ---
@@ -204,7 +204,7 @@ php bin/console doctrine:mapping:info
 ### Login - `_login_button.html.twig`
 
 ```twig
-{% include '@TouchId/touch_id/_login_button.html.twig' with {
+{% include '@Passkey/passkey/_login_button.html.twig' with {
     redirect_url: path('app_account'),
     show_divider: true
 } %}
@@ -215,8 +215,8 @@ Options : `email_input`, `redirect_url`, `button_class`, `show_hint`, `show_divi
 ### Compte - `_manage.html.twig`
 
 ```twig
-{% include '@TouchId/touch_id/_manage.html.twig' with {
-    credentials: touch_id_credentials(app.user)
+{% include '@Passkey/passkey/_manage.html.twig' with {
+    credentials: passkey_credentials(app.user)
 } %}
 ```
 
@@ -227,23 +227,23 @@ Options : `add_button_class`, `wrapper_class`, libellés i18n…
 
 | Helper                          | Description                |
 | ------------------------------- | -------------------------- |
-| `touch_id_credentials(user)`    | Liste des passkeys         |
-| `touch_id_manager`              | Service `TouchIdManager`   |
-| `touch_id_redirect_path`        | URL de redirect post-login |
-| `touch_id_email_input_selector` | Sélecteurs CSS email       |
-| `touch_id_translation_domain`   | Domaine de traduction      |
+| `passkey_credentials(user)`    | Liste des passkeys         |
+| `passkey_manager`              | Service `PasskeyManager`   |
+| `passkey_redirect_path`        | URL de redirect post-login |
+| `passkey_email_input_selector` | Sélecteurs CSS email       |
+| `passkey_translation_domain`   | Domaine de traduction      |
 
 
-Traductions CTA : `TouchIdBundle` (`fr`, `en`, `es`, `de`).
+Traductions CTA : `PasskeyBundle` (`fr`, `en`, `es`, `de`).
 
 ### CSS
 
-Styles embarqués (`assets/styles/touch-id.css`), chargés via Stimulus `autoimport`.
+Styles embarqués (`assets/styles/passkey.css`), chargés via Stimulus `autoimport`.
 
 ```css
-.touch-id-manage {
-    --tid-accent: #0f766e;
-    --tid-ink: #1a2332;
+.passkey-manage {
+    --pk-accent: #0f766e;
+    --pk-ink: #1a2332;
 }
 ```
 
@@ -322,7 +322,7 @@ Une passkey créée sur `localhost` **ne fonctionne pas** sur `xxx.ngrok-free.ap
 - **Interdit :** `127.0.0.1`, IP nues → domaine WebAuthn invalide.
 - **OK :** `localhost`, hostname HTTPS public.
 - **ngrok :** ne pas forcer `Host: localhost` ; le Host / `X-Forwarded-Host` vu par Symfony doit être le hostname public.
-- En dev, `touch-id:configure` peut publier `config/packages/dev/framework.yaml` (`trusted_proxies`). **Ne pas réutiliser ces valeurs en prod** — voir [SECURITY.md](SECURITY.md).
+- En dev, `passkey:configure` peut publier `config/packages/dev/framework.yaml` (`trusted_proxies`). **Ne pas réutiliser ces valeurs en prod** — voir [SECURITY.md](SECURITY.md).
 
 Les passkeys **web seules** n’exigent **pas** de projet Google Cloud / OAuth. OAuth Google ou Digital Asset Links ne concernent que Sign-In Google / apps natives liées au site.
 
@@ -335,25 +335,28 @@ Les passkeys **web seules** n’exigent **pas** de projet Google Cloud / OAuth. 
 
 | Commande             | Rôle                                            |
 | -------------------- | ----------------------------------------------- |
-| `touch-id:configure` | Wiring complet de l’app hôte                    |
-| `touch-id:install`   | Crée uniquement la table `web_authn_credential` |
+| `passkey:configure` | Wiring complet de l’app hôte                    |
+| `passkey:install`   | Crée uniquement la table `web_authn_credential` |
 
 
 ---
 
 
 
-## Upgrade depuis 1.x
+## Migration depuis `passkey-bundle`
 
-Le package n’est plus un **Composer plugin** forcé : c’est un `symfony-bundle` (**2.0**).
+Ancien package : `wpconsulting/passkey-bundle` (abandonné).
 
 ```bash
-composer require wpconsulting/touch-id-bundle:^2.0
-# retirer allow-plugins.wpconsulting/touch-id-bundle si présent
-php bin/console touch-id:configure
+composer remove wpconsulting/passkey-bundle
+composer require wpconsulting/passkey-bundle:^1.0
+php bin/console passkey:configure
 ```
 
+Mettre à jour les includes Twig (`@Passkey/passkey/…`) et l’interface `PasskeyUserInterface`.
+
 Détails : [CHANGELOG.md](CHANGELOG.md).
+
 
 ---
 
@@ -377,4 +380,4 @@ composer test
 
 ## Licence
 
-MIT © [WP Consulting](https://wpconsulting.fr)
+MIT © [WP Consulting](https://www.linkedin.com/in/william-peninon-cto-yuno) · [wpconsulting.fr](https://wpconsulting.fr)

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Tests\Installer;
+namespace WpConsulting\PasskeyBundle\Tests\Installer;
 
 use PHPUnit\Framework\TestCase;
-use WpConsulting\TouchIdBundle\Installer\ProjectConfigurator;
+use WpConsulting\PasskeyBundle\Installer\ProjectConfigurator;
 
 final class ProjectConfiguratorTest extends TestCase
 {
@@ -15,7 +15,7 @@ final class ProjectConfiguratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tmpdir = sys_get_temp_dir().'/touch-id-cfg-'.uniqid('', true);
+        $this->tmpdir = sys_get_temp_dir().'/passkey-cfg-'.uniqid('', true);
         mkdir($this->tmpdir.'/config/packages', 0777, true);
         mkdir($this->tmpdir.'/config/routes', 0777, true);
         mkdir($this->tmpdir.'/src/Entity', 0777, true);
@@ -60,11 +60,11 @@ YAML);
     {
         $bundleRoot = \dirname(__DIR__, 2);
         $created = $this->configurator->publishSkeleton($this->tmpdir, $bundleRoot);
-        self::assertContains('config/packages/wp_consulting_touch_id.yaml', $created);
-        self::assertContains('config/routes/touch_id.yaml', $created);
+        self::assertContains('config/packages/wp_consulting_passkey.yaml', $created);
+        self::assertContains('config/routes/passkey.yaml', $created);
 
         self::assertTrue($this->configurator->writeUserClassConfig($this->tmpdir, 'App\\Entity\\User', 'email'));
-        $yaml = file_get_contents($this->tmpdir.'/config/packages/wp_consulting_touch_id.yaml');
+        $yaml = file_get_contents($this->tmpdir.'/config/packages/wp_consulting_passkey.yaml');
         self::assertIsString($yaml);
         self::assertSame('App\\Entity\\User', $this->configurator->readConfiguredUserClass($yaml));
         self::assertStringContainsString('user_identifier_field: email', $yaml);
@@ -79,11 +79,11 @@ YAML);
 
         self::assertTrue($this->configurator->ensureStimulusControllers($this->tmpdir));
         $data = json_decode((string) file_get_contents($this->tmpdir.'/assets/controllers.json'), true, 512, \JSON_THROW_ON_ERROR);
-        self::assertArrayHasKey('@wpconsulting/touch-id-bundle', $data['controllers']);
-        self::assertTrue($data['controllers']['@wpconsulting/touch-id-bundle']['login']['enabled']);
+        self::assertArrayHasKey('@wpconsulting/passkey-bundle', $data['controllers']);
+        self::assertTrue($data['controllers']['@wpconsulting/passkey-bundle']['login']['enabled']);
     }
 
-    public function testEnsureTouchIdUserInterface(): void
+    public function testEnsurePasskeyUserInterface(): void
     {
         file_put_contents($this->tmpdir.'/src/Entity/User.php', <<<'PHP'
 <?php
@@ -98,20 +98,20 @@ class User implements UserInterface
     public function eraseCredentials(): void {}
 }
 PHP);
-        file_put_contents($this->tmpdir.'/config/packages/wp_consulting_touch_id.yaml', <<<'YAML'
-wp_consulting_touch_id:
+        file_put_contents($this->tmpdir.'/config/packages/wp_consulting_passkey.yaml', <<<'YAML'
+wp_consulting_passkey:
     user_class: App\Entity\User
     user_identifier_field: email
 YAML);
 
-        $result = $this->configurator->ensureTouchIdUserInterface($this->tmpdir, 'App\\Entity\\User');
+        $result = $this->configurator->ensurePasskeyUserInterface($this->tmpdir, 'App\\Entity\\User');
         self::assertNull($result['error']);
         self::assertTrue($result['changed']);
         $code = (string) file_get_contents($this->tmpdir.'/src/Entity/User.php');
-        self::assertStringContainsString('TouchIdUserInterface', $code);
+        self::assertStringContainsString('PasskeyUserInterface', $code);
         self::assertStringContainsString('function getUserId', $code);
         self::assertStringContainsString('function getUserName', $code);
-        self::assertDoesNotMatchRegularExpression('/implements[^{]*\n,\s*TouchIdUserInterface/', $code);
+        self::assertDoesNotMatchRegularExpression('/implements[^{]*\n,\s*PasskeyUserInterface/', $code);
     }
 
     public function testEnsureWebauthnLoginAccess(): void
@@ -136,7 +136,7 @@ return [
 PHP);
         self::assertTrue($this->configurator->ensureBundleRegistered($this->tmpdir));
         $contents = (string) file_get_contents($this->tmpdir.'/config/bundles.php');
-        self::assertStringContainsString('TouchIdBundle::class', $contents);
+        self::assertStringContainsString('PasskeyBundle::class', $contents);
         self::assertFalse($this->configurator->ensureBundleRegistered($this->tmpdir));
     }
 

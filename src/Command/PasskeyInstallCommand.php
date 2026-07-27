@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Command;
+namespace WpConsulting\PasskeyBundle\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -12,13 +12,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use WpConsulting\TouchIdBundle\Entity\WebAuthnCredential;
+use WpConsulting\PasskeyBundle\Entity\WebAuthnCredential;
 
 #[AsCommand(
-    name: 'touch-id:install',
+    name: 'passkey:install',
     description: 'Create the web_authn_credential table if it does not exist (safe: does not alter other tables).',
 )]
-final class TouchIdInstallCommand extends Command
+final class PasskeyInstallCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -59,8 +59,8 @@ final class TouchIdInstallCommand extends Command
 
         $io->success('Table web_authn_credential created.');
         $io->note([
-            'Prefer: php bin/console touch-id:configure',
-            'Or ensure Twig includes @TouchId/touch_id/_login_button.html.twig + _manage.html.twig',
+            'Prefer: php bin/console passkey:configure',
+            'Or ensure Twig includes @Passkey/passkey/_login_button.html.twig + _manage.html.twig',
         ]);
 
         return Command::SUCCESS;

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Contract;
+namespace WpConsulting\PasskeyBundle\Contract;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface TouchIdUserInterface
+interface PasskeyUserInterface
 {
     public function getUserId(): mixed;
 

@@ -1,0 +1,2 @@
+passkey:
+    resource: '@PasskeyBundle/config/routes.yaml'

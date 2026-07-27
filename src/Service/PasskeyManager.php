@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Service;
+namespace WpConsulting\PasskeyBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use lbuchs\WebAuthn\Binary\ByteBuffer;
@@ -10,14 +10,14 @@ use lbuchs\WebAuthn\WebAuthn;
 use lbuchs\WebAuthn\WebAuthnException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Entity\WebAuthnCredential;
-use WpConsulting\TouchIdBundle\Repository\WebAuthnCredentialRepository;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
+use WpConsulting\PasskeyBundle\Entity\WebAuthnCredential;
+use WpConsulting\PasskeyBundle\Repository\WebAuthnCredentialRepository;
 
-class TouchIdManager
+class PasskeyManager
 {
-    private const SESSION_CREATE_CHALLENGE = 'touch_id.create.challenge';
-    private const SESSION_GET_CHALLENGE = 'touch_id.get.challenge';
+    private const SESSION_CREATE_CHALLENGE = 'passkey.create.challenge';
+    private const SESSION_GET_CHALLENGE = 'passkey.get.challenge';
 
     public function __construct(
         private readonly WebAuthnCredentialRepository $credentialRepository,
@@ -26,16 +26,16 @@ class TouchIdManager
         private readonly string $rpName,
         private readonly string $userClass,
         private readonly string $userIdentifierField = 'email',
-        private readonly string $defaultCredentialName = 'Touch ID',
+        private readonly string $defaultCredentialName = 'Passkey',
     ) {}
 
-    public function findUserByUserName(string $userName): ?TouchIdUserInterface
+    public function findUserByUserName(string $userName): ?PasskeyUserInterface
     {
         $user = $this->em->getRepository($this->userClass)->findOneBy([
             $this->userIdentifierField => $userName,
         ]);
 
-        return $user instanceof TouchIdUserInterface ? $user : null;
+        return $user instanceof PasskeyUserInterface ? $user : null;
     }
 
     public function createFactory(Request $request): WebAuthn
@@ -77,7 +77,7 @@ class TouchIdManager
         return $host;
     }
 
-    public function getRegistrationOptions(TouchIdUserInterface $user, Request $request): object
+    public function getRegistrationOptions(PasskeyUserInterface $user, Request $request): object
     {
         $webAuthn = $this->createFactory($request);
         $excludeIds = [];
@@ -102,7 +102,7 @@ class TouchIdManager
         return $this->sanitizeCreateOptions($args);
     }
 
-    public function registerCredential(TouchIdUserInterface $user, Request $request, object $payload, ?string $name = null): WebAuthnCredential
+    public function registerCredential(PasskeyUserInterface $user, Request $request, object $payload, ?string $name = null): WebAuthnCredential
     {
         $webAuthn = $this->createFactory($request);
         $challenge = $this->consumeChallenge(self::SESSION_CREATE_CHALLENGE);
@@ -141,7 +141,7 @@ class TouchIdManager
         return $credential;
     }
 
-    public function getAuthenticationOptions(Request $request, ?TouchIdUserInterface $user = null): object
+    public function getAuthenticationOptions(Request $request, ?PasskeyUserInterface $user = null): object
     {
         $webAuthn = $this->createFactory($request);
         $credentialIds = [];
@@ -174,7 +174,7 @@ class TouchIdManager
         return $this->sanitizeGetOptions($args);
     }
 
-    public function authenticate(Request $request, object $payload): TouchIdUserInterface
+    public function authenticate(Request $request, object $payload): PasskeyUserInterface
     {
         $webAuthn = $this->createFactory($request);
         $challenge = $this->consumeChallenge(self::SESSION_GET_CHALLENGE);
@@ -183,7 +183,7 @@ class TouchIdManager
         $credential = $this->credentialRepository->findOneByCredentialId($credentialId);
 
         if (!$credential) {
-            throw new \RuntimeException('Unknown fingerprint. Register Touch ID from your account first.');
+            throw new \RuntimeException('Unknown passkey. Register a passkey from your account first.');
         }
 
         try {
@@ -209,14 +209,14 @@ class TouchIdManager
         $this->em->flush();
 
         $user = $credential->getUser();
-        if (!$user instanceof TouchIdUserInterface) {
+        if (!$user instanceof PasskeyUserInterface) {
             throw new \RuntimeException('Account not found for this fingerprint.');
         }
 
         return $user;
     }
 
-    public function deleteCredential(TouchIdUserInterface $user, int $credentialId): bool
+    public function deleteCredential(PasskeyUserInterface $user, int $credentialId): bool
     {
         $credential = $this->credentialRepository->find($credentialId);
         if (!$credential || !$this->sameUserId($credential->getUser()?->getUserId(), $user->getUserId())) {
@@ -232,12 +232,12 @@ class TouchIdManager
     /**
      * @return list<WebAuthnCredential>
      */
-    public function listCredentials(TouchIdUserInterface $user): array
+    public function listCredentials(PasskeyUserInterface $user): array
     {
         return $this->credentialRepository->findByUser($user);
     }
 
-    private function userHandleFor(TouchIdUserInterface $user): string
+    private function userHandleFor(PasskeyUserInterface $user): string
     {
         return 'user:' . $this->stringifyId($user->getUserId());
     }

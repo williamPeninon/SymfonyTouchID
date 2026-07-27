@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Controller;
+namespace WpConsulting\PasskeyBundle\Controller;
 
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,14 +13,14 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Service\TouchIdManager;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
+use WpConsulting\PasskeyBundle\Service\PasskeyManager;
 
 #[AsController]
-final class TouchIdController
+final class PasskeyController
 {
     public function __construct(
-        private readonly TouchIdManager $touchIdManager,
+        private readonly PasskeyManager $touchIdManager,
         private readonly Security $security,
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -175,7 +175,7 @@ final class TouchIdController
         ]);
     }
 
-    private function touchIdUserOrError(): TouchIdUserInterface|JsonResponse
+    private function touchIdUserOrError(): PasskeyUserInterface|JsonResponse
     {
         $user = $this->security->getUser();
         if ($user === null) {
@@ -185,13 +185,13 @@ final class TouchIdController
             ], 401);
         }
 
-        if (!$user instanceof TouchIdUserInterface) {
+        if (!$user instanceof PasskeyUserInterface) {
             return new JsonResponse([
                 'success' => false,
                 'message' => sprintf(
                     'Authenticated user "%s" must implement %s.',
                     $user::class,
-                    TouchIdUserInterface::class,
+                    PasskeyUserInterface::class,
                 ),
             ], 403);
         }

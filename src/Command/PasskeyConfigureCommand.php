@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Command;
+namespace WpConsulting\PasskeyBundle\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -10,14 +10,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use WpConsulting\TouchIdBundle\Installer\ProjectConfigurator;
-use WpConsulting\TouchIdBundle\TouchIdBundle;
+use WpConsulting\PasskeyBundle\Installer\ProjectConfigurator;
+use WpConsulting\PasskeyBundle\PasskeyBundle;
 
 #[AsCommand(
-    name: 'touch-id:configure',
-    description: 'Wire Touch ID into the host app (skeleton, user_class, User interface, Stimulus, access_control, DB table).',
+    name: 'passkey:configure',
+    description: 'Wire Passkey into the host app (skeleton, user_class, User interface, Stimulus, access_control, DB table).',
 )]
-final class TouchIdConfigureCommand extends Command
+final class PasskeyConfigureCommand extends Command
 {
     public function __construct(
         private readonly ProjectConfigurator $configurator,
@@ -30,7 +30,7 @@ final class TouchIdConfigureCommand extends Command
         $this
             ->addOption('user-class', null, InputOption::VALUE_REQUIRED, 'FQCN of the User entity')
             ->addOption('identifier-field', null, InputOption::VALUE_REQUIRED, 'Doctrine identifier field', 'email')
-            ->addOption('no-db', null, InputOption::VALUE_NONE, 'Skip touch-id:install / migrations')
+            ->addOption('no-db', null, InputOption::VALUE_NONE, 'Skip passkey:install / migrations')
             ->addOption('project-dir', null, InputOption::VALUE_REQUIRED, 'Host project directory (default: cwd)');
     }
 
@@ -38,9 +38,9 @@ final class TouchIdConfigureCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $projectDir = $this->resolveProjectDir($input);
-        $bundleRoot = (new TouchIdBundle())->getPath();
+        $bundleRoot = (new PasskeyBundle())->getPath();
 
-        $io->title('WP Consulting Touch ID — configure');
+        $io->title('WP Consulting Passkey — configure');
 
         $created = $this->configurator->publishSkeleton($projectDir, $bundleRoot);
         foreach ($created as $file) {
@@ -48,7 +48,7 @@ final class TouchIdConfigureCommand extends Command
         }
 
         if ($this->configurator->ensureBundleRegistered($projectDir)) {
-            $io->writeln('  <info>Registered</info> TouchIdBundle in config/bundles.php');
+            $io->writeln('  <info>Registered</info> PasskeyBundle in config/bundles.php');
         }
 
         $userClass = $input->getOption('user-class');
@@ -69,7 +69,7 @@ final class TouchIdConfigureCommand extends Command
 
             if (!$input->isInteractive()) {
                 $io->warning(sprintf(
-                    'Non-interactive: set user_class in config/packages/wp_consulting_touch_id.yaml (e.g. %s) then re-run.',
+                    'Non-interactive: set user_class in config/packages/wp_consulting_passkey.yaml (e.g. %s) then re-run.',
                     $default
                 ));
 
@@ -104,7 +104,7 @@ final class TouchIdConfigureCommand extends Command
         $identifierField = trim($identifierField) ?: $identifierDefault;
 
         if (!$this->configurator->writeUserClassConfig($projectDir, $userClass, $identifierField)) {
-            $io->error('Could not write config/packages/wp_consulting_touch_id.yaml');
+            $io->error('Could not write config/packages/wp_consulting_passkey.yaml');
 
             return Command::FAILURE;
         }
@@ -114,13 +114,13 @@ final class TouchIdConfigureCommand extends Command
             $identifierField
         ));
 
-        $wire = $this->configurator->ensureTouchIdUserInterface($projectDir, $userClass);
+        $wire = $this->configurator->ensurePasskeyUserInterface($projectDir, $userClass);
         if ($wire['error'] !== null && $wire['path'] === null) {
-            $io->warning($wire['error'].' — add TouchIdUserInterface manually.');
+            $io->warning($wire['error'].' — add PasskeyUserInterface manually.');
         } elseif ($wire['changed']) {
-            $io->writeln(sprintf('  <info>Wired</info> TouchIdUserInterface on <comment>%s</comment>', $userClass));
+            $io->writeln(sprintf('  <info>Wired</info> PasskeyUserInterface on <comment>%s</comment>', $userClass));
         } else {
-            $io->writeln(sprintf('  TouchIdUserInterface already present on <comment>%s</comment>', $userClass));
+            $io->writeln(sprintf('  PasskeyUserInterface already present on <comment>%s</comment>', $userClass));
         }
 
         if ($this->configurator->ensureStimulusControllers($projectDir)) {
@@ -136,9 +136,9 @@ final class TouchIdConfigureCommand extends Command
         }
 
         if (!$input->getOption('no-db')) {
-            [$ok] = $this->configurator->runConsole($projectDir, ['touch-id:install', '-n']);
+            [$ok] = $this->configurator->runConsole($projectDir, ['passkey:install', '-n']);
             if ($ok) {
-                $io->writeln('  <info>Database</info> web_authn_credential ready (touch-id:install).');
+                $io->writeln('  <info>Database</info> web_authn_credential ready (passkey:install).');
             } else {
                 [$migrateOk] = $this->configurator->runConsole($projectDir, [
                     'doctrine:migrations:diff', '--no-interaction',
@@ -149,16 +149,16 @@ final class TouchIdConfigureCommand extends Command
                 if ($migrateOk2 || $migrateOk) {
                     $io->writeln('  <info>Database</info> via doctrine:migrations.');
                 } else {
-                    $io->note('Run: php bin/console touch-id:install');
+                    $io->note('Run: php bin/console passkey:install');
                 }
             }
         }
 
-        $io->success('Touch ID configure complete.');
+        $io->success('Passkey configure complete.');
         $io->writeln('Twig includes still to add if missing:');
         $io->listing([
-            "{% include '@TouchId/touch_id/_login_button.html.twig' %}",
-            "{% include '@TouchId/touch_id/_manage.html.twig' with { credentials: touch_id_credentials(app.user) } %}",
+            "{% include '@Passkey/passkey/_login_button.html.twig' %}",
+            "{% include '@Passkey/passkey/_manage.html.twig' with { credentials: passkey_credentials(app.user) } %}",
         ]);
 
         return Command::SUCCESS;

@@ -1,15 +1,15 @@
-{# @TouchId/touch_id/_manage.html.twig #}
+{# @Passkey/passkey/_manage.html.twig #}
 {#
-  Usage (pass credentials from TouchIdManager::listCredentials):
-  {% include '@TouchId/touch_id/_manage.html.twig' with { credentials: webAuthnCredentials } %}
+  Usage (pass credentials from PasskeyManager::listCredentials):
+  {% include '@Passkey/passkey/_manage.html.twig' with { credentials: webAuthnCredentials } %}
 #}
-{% set tid_domain = translation_domain|default('TouchIdBundle') %}
+{% set tid_domain = translation_domain|default('PasskeyBundle') %}
 <div
-    class="touch-id-manage {{ wrapper_class|default('') }}"
-    data-controller="webauthn-register"
-    data-webauthn-register-options-url-value="{{ path('webauthn_register_options') }}"
-    data-webauthn-register-verify-url-value="{{ path('webauthn_register_verify') }}"
-    data-webauthn-register-delete-url-template-value="{{ path('webauthn_credential_delete', { id: 999999999 })|replace({'999999999': '__ID__'}) }}"
+    class="passkey-manage {{ wrapper_class|default('') }}"
+    data-controller="passkey-register"
+    data-passkey-register-options-url-value="{{ path('webauthn_register_options') }}"
+    data-passkey-register-verify-url-value="{{ path('webauthn_register_verify') }}"
+    data-passkey-register-delete-url-template-value="{{ path('webauthn_credential_delete', { id: 999999999 })|replace({'999999999': '__ID__'}) }}"
     data-cancel-message="{{ (cancel_message|default('cancelled'))|trans({}, tid_domain) }}"
     data-error-message="{{ (error_message|default('register_failed'))|trans({}, tid_domain) }}"
     data-success-message="{{ (success_message|default('registered'))|trans({}, tid_domain) }}"
@@ -20,19 +20,19 @@
     data-android-message="{{ (android_message|default('android_error'))|trans({}, tid_domain) }}"
     data-add-label-template="{{ (add_label_template|default('add_template'))|trans({}, tid_domain) }}"
 >
-    <div class="touch-id-alert touch-id-alert--info" data-webauthn-register-target="unsupported" hidden>
+    <div class="passkey-alert passkey-alert--info" data-passkey-register-target="unsupported" hidden>
         {{ (mac_only|default('mac_only'))|trans({}, tid_domain) }}
     </div>
 
-    <div class="touch-id-manage__panel" data-webauthn-register-target="panel" hidden>
-        <div class="touch-id-alert touch-id-alert--danger" data-webauthn-register-target="error" hidden></div>
-        <div class="touch-id-alert touch-id-alert--success" data-webauthn-register-target="success" hidden></div>
+    <div class="passkey-manage__panel" data-passkey-register-target="panel" hidden>
+        <div class="passkey-alert passkey-alert--danger" data-passkey-register-target="error" hidden></div>
+        <div class="passkey-alert passkey-alert--success" data-passkey-register-target="success" hidden></div>
 
-        <p class="touch-id-manage__empty" data-webauthn-register-target="empty" {% if credentials is not empty %}hidden{% endif %}>
+        <p class="passkey-manage__empty" data-passkey-register-target="empty" {% if credentials is not empty %}hidden{% endif %}>
             {{ (empty_message|default('empty'))|trans({}, tid_domain) }}
         </p>
 
-        <ul class="touch-id-manage__list" data-webauthn-register-target="list" {% if credentials is empty %}hidden{% endif %}>
+        <ul class="passkey-manage__list" data-passkey-register-target="list" {% if credentials is empty %}hidden{% endif %}>
             {% for credential in credentials %}
                 <li class="webauthn-credential" data-webauthn-credential-id="{{ credential.id }}">
                     <div class="webauthn-credential__meta">
@@ -41,8 +41,8 @@
                     </div>
                     <button
                         type="button"
-                        class="touch-id-btn touch-id-btn--danger"
-                        data-action="webauthn-register#remove"
+                        class="passkey-btn passkey-btn--danger"
+                        data-action="passkey-register#remove"
                         data-credential-id="{{ credential.id }}"
                     >
                         {{ (delete_label|default('delete'))|trans({}, tid_domain) }}
@@ -51,17 +51,17 @@
             {% endfor %}
         </ul>
 
-        <div class="touch-id-manage__actions" data-webauthn-register-target="actions">
+        <div class="passkey-manage__actions" data-passkey-register-target="actions">
             <button
                 type="button"
-                class="{{ add_button_class|default('touch-id-btn') }}"
-                data-webauthn-register-target="button"
-                data-action="webauthn-register#register"
+                class="{{ add_button_class|default('passkey-btn') }}"
+                data-passkey-register-target="button"
+                data-action="passkey-register#register"
             >
-                <span data-webauthn-register-target="addLabel">{{ (add_label|default('add'))|trans({}, tid_domain) }}</span>
+                <span data-passkey-register-target="addLabel">{{ (add_label|default('add'))|trans({}, tid_domain) }}</span>
             </button>
         </div>
-        <p class="touch-id-manage__hint" data-webauthn-register-target="samsungHint" hidden>
+        <p class="passkey-manage__hint" data-passkey-register-target="samsungHint" hidden>
             {{ (samsung_hint|default('samsung_hint'))|trans({}, tid_domain) }}
         </p>
     </div>

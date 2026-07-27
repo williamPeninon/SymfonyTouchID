@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Entity;
+namespace WpConsulting\PasskeyBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Repository\WebAuthnCredentialRepository;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
+use WpConsulting\PasskeyBundle\Repository\WebAuthnCredentialRepository;
 
 #[ORM\Entity(repositoryClass: WebAuthnCredentialRepository::class)]
 #[ORM\Table(name: 'web_authn_credential')]
@@ -18,9 +18,9 @@ class WebAuthnCredential
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: TouchIdUserInterface::class)]
+    #[ORM\ManyToOne(targetEntity: PasskeyUserInterface::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?TouchIdUserInterface $user = null;
+    private ?PasskeyUserInterface $user = null;
 
     /** Base64url-encoded credential ID */
     #[ORM\Column(length: 512)]
@@ -34,7 +34,7 @@ class WebAuthnCredential
     private int $signCount = 0;
 
     #[ORM\Column(length: 100)]
-    private string $name = 'Face ID / Touch ID';
+    private string $name = 'Passkey';
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $aaguid = null;
@@ -55,12 +55,12 @@ class WebAuthnCredential
         return $this->id;
     }
 
-    public function getUser(): ?TouchIdUserInterface
+    public function getUser(): ?PasskeyUserInterface
     {
         return $this->user;
     }
 
-    public function setUser(?TouchIdUserInterface $user): static
+    public function setUser(?PasskeyUserInterface $user): static
     {
         $this->user = $user;
 

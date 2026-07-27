@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Doctrine;
+namespace WpConsulting\PasskeyBundle\Doctrine;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Event\OnClassMetadataNotFoundEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use WpConsulting\TouchIdBundle\Contract\TouchIdUserInterface;
-use WpConsulting\TouchIdBundle\Entity\WebAuthnCredential;
+use WpConsulting\PasskeyBundle\Contract\PasskeyUserInterface;
+use WpConsulting\PasskeyBundle\Entity\WebAuthnCredential;
 
 /**
- * Rewrites WebAuthnCredential::$user target from TouchIdUserInterface to the configured user entity.
+ * Rewrites WebAuthnCredential::$user target from PasskeyUserInterface to the configured user entity.
  */
-final class ResolveTouchIdUserListener
+final class ResolvePasskeyUserListener
 {
     public function __construct(
         private readonly string $userClass,
@@ -27,7 +27,7 @@ final class ResolveTouchIdUserListener
         }
 
         foreach ($metadata->associationMappings as $fieldName => $mapping) {
-            if (!$this->isTouchIdUserTarget($mapping->targetEntity)) {
+            if (!$this->isPasskeyUserTarget($mapping->targetEntity)) {
                 continue;
             }
 
@@ -42,7 +42,7 @@ final class ResolveTouchIdUserListener
 
     public function onClassMetadataNotFound(OnClassMetadataNotFoundEventArgs $args): void
     {
-        if (!$this->isTouchIdUserTarget($args->getClassName())) {
+        if (!$this->isPasskeyUserTarget($args->getClassName())) {
             return;
         }
 
@@ -51,8 +51,8 @@ final class ResolveTouchIdUserListener
         );
     }
 
-    private function isTouchIdUserTarget(string $className): bool
+    private function isPasskeyUserTarget(string $className): bool
     {
-        return ltrim($className, '\\') === TouchIdUserInterface::class;
+        return ltrim($className, '\\') === PasskeyUserInterface::class;
     }
 }

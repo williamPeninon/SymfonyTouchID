@@ -1,7 +1,7 @@
 -- Reference schema for web_authn_credential (MySQL / MariaDB).
 -- Prefer: php bin/console doctrine:migrations:diff && doctrine:migrations:migrate
 -- (requires user_class so the FK to User resolves).
--- Fallback: php bin/console touch-id:install
+-- Fallback: php bin/console passkey:install
 
 CREATE TABLE web_authn_credential (
     id INT AUTO_INCREMENT NOT NULL,

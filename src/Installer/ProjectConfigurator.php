@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\Installer;
+namespace WpConsulting\PasskeyBundle\Installer;
 
 /**
- * Idempotent project wiring used by touch-id:configure (no Composer plugin).
+ * Idempotent project wiring used by passkey:configure (no Composer plugin).
  *
  * @internal
  */
@@ -25,8 +25,8 @@ final class ProjectConfigurator
     ];
 
     private const SKELETON_FILES = [
-        'config/packages/wp_consulting_touch_id.yaml',
-        'config/routes/touch_id.yaml',
+        'config/packages/wp_consulting_passkey.yaml',
+        'config/routes/passkey.yaml',
         'config/packages/dev/framework.yaml',
     ];
 
@@ -72,11 +72,11 @@ final class ProjectConfigurator
         }
 
         $contents = file_get_contents($bundlesFile);
-        if ($contents === false || str_contains($contents, 'WpConsulting\\TouchIdBundle\\TouchIdBundle')) {
+        if ($contents === false || str_contains($contents, 'WpConsulting\\PasskeyBundle\\PasskeyBundle')) {
             return false;
         }
 
-        $line = "    WpConsulting\\TouchIdBundle\\TouchIdBundle::class => ['all' => true],\n";
+        $line = "    WpConsulting\\PasskeyBundle\\PasskeyBundle::class => ['all' => true],\n";
         $updated = preg_replace('/\];\s*$/', $line.'];', $contents, 1);
         if (!\is_string($updated) || $updated === $contents) {
             return false;
@@ -112,7 +112,7 @@ final class ProjectConfigurator
 
     public function readConfiguredUserClassFromProject(string $projectDir): ?string
     {
-        $configFile = $projectDir.'/config/packages/wp_consulting_touch_id.yaml';
+        $configFile = $projectDir.'/config/packages/wp_consulting_passkey.yaml';
         if (!is_file($configFile)) {
             return null;
         }
@@ -137,7 +137,7 @@ final class ProjectConfigurator
 
     public function readConfiguredIdentifierField(string $projectDir): ?string
     {
-        $configFile = $projectDir.'/config/packages/wp_consulting_touch_id.yaml';
+        $configFile = $projectDir.'/config/packages/wp_consulting_passkey.yaml';
         if (!is_file($configFile)) {
             return null;
         }
@@ -276,7 +276,7 @@ final class ProjectConfigurator
         string $userClass,
         string $identifierField,
     ): bool {
-        $configFile = $projectDir.'/config/packages/wp_consulting_touch_id.yaml';
+        $configFile = $projectDir.'/config/packages/wp_consulting_passkey.yaml';
         if (!is_file($configFile)) {
             return false;
         }
@@ -311,7 +311,7 @@ final class ProjectConfigurator
     /**
      * @return array{changed: bool, path: ?string, error: ?string}
      */
-    public function ensureTouchIdUserInterface(string $projectDir, string $userClass): array
+    public function ensurePasskeyUserInterface(string $projectDir, string $userClass): array
     {
         $path = $this->resolveUserClassFile($projectDir, $userClass);
         if ($path === null || !is_file($path)) {
@@ -324,9 +324,9 @@ final class ProjectConfigurator
         }
 
         $changed = false;
-        $interfaceFqcn = 'WpConsulting\\TouchIdBundle\\Contract\\TouchIdUserInterface';
+        $interfaceFqcn = 'WpConsulting\\PasskeyBundle\\Contract\\PasskeyUserInterface';
 
-        if (!str_contains($code, 'TouchIdUserInterface')) {
+        if (!str_contains($code, 'PasskeyUserInterface')) {
             if (preg_match('/^use\s+[^;]+;/m', $code)) {
                 $replaced = preg_replace(
                     '/^(use\s+[^;]+;\n)(?!use\s)/m',
@@ -348,10 +348,10 @@ final class ProjectConfigurator
             }
         }
 
-        if (preg_match('/\bclass\s+\w+[^{]*\bimplements\b[^{]*\bTouchIdUserInterface\b/s', $code) !== 1) {
+        if (preg_match('/\bclass\s+\w+[^{]*\bimplements\b[^{]*\bPasskeyUserInterface\b/s', $code) !== 1) {
             $replaced = preg_replace(
                 '/(\bclass\s+\w+(?:\s+extends\s+[^\s{]+)?\s+implements\s+)([^{\n]+?)(\s*\{)/',
-                '$1$2, TouchIdUserInterface$3',
+                '$1$2, PasskeyUserInterface$3',
                 $code,
                 1,
                 $count
@@ -362,7 +362,7 @@ final class ProjectConfigurator
             } else {
                 $replaced = preg_replace(
                     '/(\bclass\s+\w+(?:\s+extends\s+[^\s{]+)?)(\s*)\{/',
-                    '$1 implements TouchIdUserInterface$2{',
+                    '$1 implements PasskeyUserInterface$2{',
                     $code,
                     1,
                     $count2
@@ -408,7 +408,7 @@ PHP;
         }
 
         if ($methodsToAdd !== []) {
-            $block = "\n    // TouchIdUserInterface".implode('', $methodsToAdd)."\n";
+            $block = "\n    // PasskeyUserInterface".implode('', $methodsToAdd)."\n";
             $pos = strrpos($code, '}');
             if ($pos === false) {
                 return ['changed' => false, 'path' => $path, 'error' => 'No closing brace in User class'];
@@ -452,7 +452,7 @@ PHP;
             $data['entrypoints'] = [];
         }
 
-        $key = '@wpconsulting/touch-id-bundle';
+        $key = '@wpconsulting/passkey-bundle';
         if (($data['controllers'][$key] ?? null) === self::STIMULUS_CONTROLLERS) {
             return true;
         }

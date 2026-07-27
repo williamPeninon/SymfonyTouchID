@@ -1,7 +1,7 @@
 # Trusted proxies for local HTTPS tunnels (ngrok, etc.)
 # Loaded only when APP_ENV=dev — not applied in prod.
 framework:
-    # touch-id-trusted-proxies
+    # passkey-trusted-proxies
     # Trust X-Forwarded-* so CSRF Origin / WebAuthn RP ID match the public https host
     trusted_proxies: '127.0.0.1,REMOTE_ADDR'
     trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']

@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import '../styles/touch-id.css';
+import '../styles/passkey.css';
 import {
     assertValidWebAuthnHost,
     bufferToBase64Url,
@@ -47,7 +47,7 @@ export default class extends Controller {
 
     applyBiometricLabel() {
         const label = preferredBiometricLabel();
-        const labelEl = this.element.querySelector('[data-webauthn-login-target="label"]');
+        const labelEl = this.element.querySelector('[data-passkey-login-target="label"]');
         if (labelEl) {
             const template = this.element.dataset.loginLabelTemplate || 'Sign in with %biometric%';
             labelEl.textContent = template.replace('%biometric%', label);

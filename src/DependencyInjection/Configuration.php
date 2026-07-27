@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpConsulting\TouchIdBundle\DependencyInjection;
+namespace WpConsulting\PasskeyBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -11,18 +11,18 @@ final class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('wp_consulting_touch_id');
+        $treeBuilder = new TreeBuilder('wp_consulting_passkey');
         $root = $treeBuilder->getRootNode();
 
         $root
             ->children()
                 ->scalarNode('user_class')
                     ->defaultNull()
-                    ->info('FQCN of your User entity implementing TouchIdUserInterface')
+                    ->info('FQCN of your User entity implementing PasskeyUserInterface')
                 ->end()
                 ->scalarNode('user_repository')
                     ->defaultNull()
-                    ->setDeprecated('wpconsulting/touch-id-bundle', '2.0', 'The "user_repository" option is ignored; users are loaded via EntityManager and user_class.')
+                    ->setDeprecated('wpconsulting/passkey-bundle', '1.0', 'The "user_repository" option is ignored; users are loaded via EntityManager and user_class.')
                     ->info('Deprecated — ignored. Kept so existing YAML still loads.')
                 ->end()
                 ->scalarNode('user_identifier_field')
@@ -31,11 +31,11 @@ final class Configuration implements ConfigurationInterface
                     ->info('Doctrine field used to look up the user at WebAuthn login (usually email or username)')
                 ->end()
                 ->scalarNode('rp_name')
-                    ->defaultValue('Face ID / Touch ID')
+                    ->defaultValue('Passkey')
                     ->cannotBeEmpty()
                 ->end()
                 ->scalarNode('default_credential_name')
-                    ->defaultValue('Face ID / Touch ID')
+                    ->defaultValue('Passkey')
                 ->end()
                 ->scalarNode('login_authenticator')
                     ->defaultValue('form_login')
@@ -51,7 +51,7 @@ final class Configuration implements ConfigurationInterface
                     ->info('Optional AuthenticationSuccessHandlerInterface service id')
                 ->end()
                 ->scalarNode('translation_domain')
-                    ->defaultValue('TouchIdBundle')
+                    ->defaultValue('PasskeyBundle')
                 ->end()
                 ->scalarNode('translation_prefix')
                     ->defaultValue('')

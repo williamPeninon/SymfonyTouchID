@@ -4,7 +4,7 @@ services:
         autoconfigure: true
 
     # Always available — even before user_class is wired.
-    WpConsulting\TouchIdBundle\Installer\ProjectConfigurator: ~
+    WpConsulting\PasskeyBundle\Installer\ProjectConfigurator: ~
 
-    WpConsulting\TouchIdBundle\Command\TouchIdConfigureCommand:
+    WpConsulting\PasskeyBundle\Command\PasskeyConfigureCommand:
         tags: ['console.command']

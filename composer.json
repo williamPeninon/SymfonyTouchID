@@ -1,16 +1,17 @@
 {
-    "name": "wpconsulting/touch-id-bundle",
+    "name": "wpconsulting/passkey-bundle",
     "type": "symfony-bundle",
     "description": "Symfony bundle for WebAuthn platform passkeys (Face ID, Touch ID, Samsung fingerprint, Windows Hello).",
     "keywords": [
         "symfony",
         "webauthn",
         "passkey",
-        "touch-id",
         "biometric",
         "authentication",
         "symfony-ux",
-        "flex"
+        "flex",
+        "face-id",
+        "windows-hello"
     ],
     "homepage": "https://github.com/williamPeninon/SymfonyTouchID",
     "license": "MIT",
@@ -44,12 +45,12 @@
     },
     "autoload": {
         "psr-4": {
-            "WpConsulting\\TouchIdBundle\\": "src/"
+            "WpConsulting\\PasskeyBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "WpConsulting\\TouchIdBundle\\Tests\\": "tests/"
+            "WpConsulting\\PasskeyBundle\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -57,7 +58,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "2.0-dev"
+            "dev-main": "1.0-dev"
         },
         "symfony": {
             "allow-contrib": true

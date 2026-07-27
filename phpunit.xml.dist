@@ -6,7 +6,7 @@
          cacheDirectory=".phpunit.cache"
 >
     <testsuites>
-        <testsuite name="TouchIdBundle">
+        <testsuite name="PasskeyBundle">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

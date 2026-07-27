@@ -1,0 +1,45 @@
+{# @Passkey/passkey/_login_button.html.twig #}
+{#
+  Usage:
+  {% include '@Passkey/passkey/_login_button.html.twig' %}
+
+  Optional overrides:
+  - email_input: CSS selector(s) for the login email field
+  - redirect_url: fallback URL after successful login (default: passkey_redirect_path)
+#}
+{% set tid_domain = translation_domain|default(passkey_translation_domain|default('PasskeyBundle')) %}
+{% set tid_email_input = email_input|default(passkey_email_input_selector|default('#username, input[name="_username"], input[name="email"], input[type="email"]')) %}
+{% set tid_redirect = redirect_url|default(passkey_redirect_path|default('/')) %}
+<div
+    class="passkey-login {{ delay|default('') }}"
+    data-controller="passkey-login"
+    data-passkey-login-options-url-value="{{ path('webauthn_login_options') }}"
+    data-passkey-login-verify-url-value="{{ path('webauthn_login_verify') }}"
+    data-passkey-login-email-input-value="{{ tid_email_input }}"
+    data-passkey-login-redirect-url-value="{{ tid_redirect }}"
+    data-cancel-message="{{ (cancel_message|default('cancelled'))|trans({}, tid_domain) }}"
+    data-error-message="{{ (error_message|default('login_failed'))|trans({}, tid_domain) }}"
+    data-android-message="{{ (android_message|default('android_error'))|trans({}, tid_domain) }}"
+    data-host-message="{{ (host_message|default('invalid_host'))|trans({}, tid_domain) }}"
+    data-no-passkey-message="{{ (no_passkey_message|default('login_no_passkey'))|trans({}, tid_domain) }}"
+    data-login-label-template="{{ (login_label_template|default('login_template'))|trans({}, tid_domain) }}"
+    hidden
+>
+    <button
+        type="button"
+        class="{{ button_class|default('auth-passkey-btn') }}"
+        data-passkey-login-target="button"
+        data-action="passkey-login#login"
+    >
+        <span data-passkey-login-target="label">{{ (login_label|default('login'))|trans({}, tid_domain) }}</span>
+    </button>
+    {% if show_hint|default(true) %}
+        <p class="{{ hint_class|default('auth-passkey-hint') }}">{{ (hint_message|default('login_hint'))|trans({}, tid_domain) }}</p>
+    {% endif %}
+    <div class="passkey-alert passkey-alert--danger" data-passkey-login-target="error" hidden></div>
+    {% if show_divider|default(true) %}
+        <div class="auth-divider">
+            <span>{{ (or_label|default('or'))|trans({}, tid_domain) }}</span>
+        </div>
+    {% endif %}
+</div>

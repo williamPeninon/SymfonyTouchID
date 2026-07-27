@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import '../styles/touch-id.css';
+import '../styles/passkey.css';
 import {
     assertValidWebAuthnHost,
     bufferToBase64Url,
@@ -71,7 +71,7 @@ export default class extends Controller {
         const template = this.element.dataset.addLabelTemplate || 'Ajouter %biometric%';
         const label = preferredBiometricLabel();
         const text = template.replace('%biometric%', label);
-        const labelEl = this.element.querySelector('[data-webauthn-register-target="addLabel"]');
+        const labelEl = this.element.querySelector('[data-passkey-register-target="addLabel"]');
         if (labelEl) {
             labelEl.textContent = text;
         } else if (this.hasButtonTarget) {
@@ -185,8 +185,8 @@ export default class extends Controller {
                 <span class="webauthn-credential__date">${this.escapeHtml(credential.createdAt)}</span>
             </div>
             <button type="button"
-                class="touch-id-btn touch-id-btn--danger"
-                data-action="webauthn-register#remove"
+                class="passkey-btn passkey-btn--danger"
+                data-action="passkey-register#remove"
                 data-credential-id="${credential.id}">
                 ${this.escapeHtml(this.element.dataset.deleteLabel || 'Supprimer')}
             </button>
