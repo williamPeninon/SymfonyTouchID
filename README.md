@@ -343,12 +343,12 @@ Les passkeys **web seules** n’exigent **pas** de projet Google Cloud / OAuth. 
 
 
 
-## Migration depuis `passkey-bundle`
+## Migration depuis `touch-id-bundle`
 
-Ancien package : `wpconsulting/passkey-bundle` (abandonné).
+Ancien package : `wpconsulting/touch-id-bundle` (abandonné).
 
 ```bash
-composer remove wpconsulting/passkey-bundle
+composer remove wpconsulting/touch-id-bundle
 composer require wpconsulting/passkey-bundle:^3.0
 php bin/console passkey:configure
 ```
