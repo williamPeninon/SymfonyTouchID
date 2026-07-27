@@ -18,12 +18,9 @@
                     "",
                     "<bg=blue;fg=white> wpconsulting/touch-id-bundle </>",
                     "",
-                    "  * Confirm <comment>user_class</comment> when prompted (or edit wp_consulting_touch_id.yaml).",
-                    "  * Implement <comment>TouchIdUserInterface</> on your User entity.",
+                    "  * Confirm <comment>user_class</comment> when prompted (auto-wires entity + Stimulus + DB table).",
                     "  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.",
-                    "  * Enable Stimulus controllers in <comment>assets/controllers.json</> (see README).",
-                    "  * Create the table: <comment>php bin/console doctrine:migrations:diff && doctrine:migrations:migrate</>",
-                    "  * Twig: <comment>touch_id_credentials(app.user)</> / global <comment>touch_id_manager</>.",
+                    "  * Twig: include <comment>@TouchId/touch_id/_login_button.html.twig</> + <comment>_manage.html.twig</>.",
                     ""
                 ]
             },
@@ -55,6 +52,19 @@
                     "contents": [
                         "touch_id:",
                         "    resource: '@TouchIdBundle/config/routes.yaml'",
+                        ""
+                    ],
+                    "executable": false
+                },
+                "config/packages/dev/framework.yaml": {
+                    "contents": [
+                        "# Trusted proxies for local HTTPS tunnels (ngrok, etc.)",
+                        "# Loaded only when APP_ENV=dev — not applied in prod.",
+                        "framework:",
+                        "    # touch-id-trusted-proxies",
+                        "    # Trust X-Forwarded-* so CSRF Origin / WebAuthn RP ID match the public https host",
+                        "    trusted_proxies: '127.0.0.1,REMOTE_ADDR'",
+                        "    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']",
                         ""
                     ],
                     "executable": false

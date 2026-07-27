@@ -29,11 +29,15 @@ composer require wpconsulting/touch-id-bundle
 À l’install, un **plugin Composer** (inclus dans le package) :
 
 - crée `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml` s’ils manquent ;
+- crée `config/packages/dev/framework.yaml` (`trusted_proxies` / `trusted_headers` pour ngrok) — **uniquement chargé en `APP_ENV=dev`**, jamais en prod ;
 - enregistre le bundle dans `config/bundles.php` si besoin ;
 - **demande interactivement** le FQCN de l’entité d’authentification (`user_class`) et le champ identifiant (`user_identifier_field`), avec détection depuis `security.yaml` / `src/` ;
-- affiche le checklist de wiring dans la console.
+- **câble automatiquement** `TouchIdUserInterface` (+ méthodes) sur l’entité choisie ;
+- **active** les contrôleurs Stimulus dans `assets/controllers.json` ;
+- **crée la table** `web_authn_credential` via `touch-id:install` (fallback migrations) ;
+- affiche le checklist de wiring restant (security access_control, includes Twig).
 
-En mode non interactif (`composer require -n` / CI), `user_class` reste à `~` : à renseigner ensuite dans le YAML.
+En mode non interactif (`composer require -n` / CI), `user_class` reste à `~` : à renseigner ensuite dans le YAML (puis relancer un `composer update` du package ou câbler à la main).
 
 > **Endpoint Flex (optionnel)** — pour synchroniser aussi via Symfony Flex :
 > ```json
@@ -204,16 +208,17 @@ Ou remplacez les classes via les options Twig (`button_class`, `add_button_class
 
 ## Récap wiring
 
-| # | Étape | Auto Flex ? |
+| # | Étape | Auto ? |
 |---|---|---|
-| 1 | Endpoint Flex dans `composer.json` | — (une fois) |
+| 1 | Endpoint Flex dans `composer.json` | — (une fois, optionnel) |
 | 2 | `composer require` | — |
-| 3 | YAML `user_class` / … | **Prompt Composer** (sinon à remplir) |
+| 3 | YAML `user_class` / … | **Prompt Composer** |
 | 4 | Import routes | Oui (fichier copié) |
+| 4b | `trusted_proxies` (ngrok) | Oui — `config/packages/dev/` only |
 | 5 | `access_control` `/webauthn/login` | Non |
-| 6 | `TouchIdUserInterface` sur User | Non |
-| 7 | `doctrine:migrations:diff` + `migrate` | Non |
-| 8 | `controllers.json` Stimulus | Non |
+| 6 | `TouchIdUserInterface` sur User | **Auto Composer** |
+| 7 | Table `web_authn_credential` | **Auto** (`touch-id:install`) |
+| 8 | `controllers.json` Stimulus | **Auto Composer** |
 | 9–10 | Includes Twig login + compte | Non |
 | 11 | CSS (embarqué + overridable) | Oui (via Stimulus) |
 
