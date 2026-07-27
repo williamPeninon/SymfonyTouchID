@@ -141,11 +141,14 @@ export default class extends Controller {
 
             window.location.href = this.redirectUrlValue || '/';
         } catch (error) {
-            if (error.name === 'NotAllowedError') {
-                this.showError(this.element.dataset.noPasskeyMessage || this.element.dataset.cancelMessage || 'Cancelled.');
+            // User dismissed the OS/browser passkey sheet (Cancel / dismiss).
+            // Browsers surface this as NotAllowedError or AbortError — not as "no passkey".
+            if (error.name === 'NotAllowedError' || error.name === 'AbortError') {
+                this.showError(this.element.dataset.cancelMessage || 'Cancelled.');
             } else {
                 this.showError(
                     formatWebAuthnError(error, this.element.dataset.androidMessage, this.element.dataset.errorMessage)
+                    || error.message
                     || this.element.dataset.errorMessage
                     || 'Biometric sign-in failed.',
                 );
