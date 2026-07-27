@@ -18,8 +18,7 @@
                     "",
                     "<bg=blue;fg=white> wpconsulting/touch-id-bundle </>",
                     "",
-                    "  * Confirm <comment>user_class</comment> when prompted (auto-wires entity + Stimulus + DB table).",
-                    "  * Add PUBLIC_ACCESS for <comment>^/webauthn/login</> in security.yaml.",
+                    "  * Run <comment>php bin/console touch-id:configure</> (user_class, User interface, Stimulus, DB).",
                     "  * Twig: include <comment>@TouchId/touch_id/_login_button.html.twig</> + <comment>_manage.html.twig</>.",
                     ""
                 ]

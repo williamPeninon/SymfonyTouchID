@@ -6,11 +6,13 @@ services:
     WpConsulting\TouchIdBundle\:
         resource: '../src/'
         exclude:
-            - '../src/Composer/'
             - '../src/DependencyInjection/'
             - '../src/Doctrine/'
             - '../src/Entity/'
+            - '../src/Installer/'
             - '../src/TouchIdBundle.php'
+
+    WpConsulting\TouchIdBundle\Installer\ProjectConfigurator: ~
 
     WpConsulting\TouchIdBundle\Controller\TouchIdController:
         tags: ['controller.service_arguments']

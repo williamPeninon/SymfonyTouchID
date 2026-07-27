@@ -12,9 +12,9 @@ Bundle Symfony pour la connexion sans mot de passe via **WebAuthn / passkeys** s
 
 ## Ce que le bundle fait / ne fait pas
 
-**Fourni out of the box :** WebAuthn (manager, entity, routes API), Stimulus, partials Twig, traductions CTA (`TouchIdBundle`), helpers Twig, commande `touch-id:install`, recipe Flex.
+**Fourni out of the box :** WebAuthn (manager, entity, routes API), Stimulus, partials Twig, traductions CTA (`TouchIdBundle`), helpers Twig, commandes `touch-id:configure` / `touch-id:install`, recipe Flex.
 
-**Pas 100 % plug-and-play :** il reste un **wiring** côté app (User, security, includes Twig, Stimulus). Comptez ~10–15 min.
+**Wiring assisté :** après `composer require`, lancez `php bin/console touch-id:configure` (plus de plugin Composer forcé).
 
 ---
 
@@ -24,22 +24,23 @@ Bundle Symfony pour la connexion sans mot de passe via **WebAuthn / passkeys** s
 
 ```bash
 composer require wpconsulting/touch-id-bundle
+php bin/console touch-id:configure
 ```
 
-À l’install, un **plugin Composer** (inclus dans le package) :
+`touch-id:configure` :
 
 - crée `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml` s’ils manquent ;
-- crée `config/packages/dev/framework.yaml` (`trusted_proxies` / `trusted_headers` pour ngrok) — **uniquement chargé en `APP_ENV=dev`**, jamais en prod ;
+- crée `config/packages/dev/framework.yaml` (`trusted_proxies` pour ngrok) — **uniquement en `APP_ENV=dev`** ;
 - enregistre le bundle dans `config/bundles.php` si besoin ;
-- **demande interactivement** le FQCN de l’entité d’authentification (`user_class`) et le champ identifiant (`user_identifier_field`), avec détection depuis `security.yaml` / `src/` ;
-- **câble automatiquement** `TouchIdUserInterface` (+ méthodes) sur l’entité choisie ;
-- **active** les contrôleurs Stimulus dans `assets/controllers.json` ;
-- **crée la table** `web_authn_credential` via `touch-id:install` (fallback migrations) ;
-- affiche le checklist de wiring restant (security access_control, includes Twig).
+- demande le FQCN `user_class` (+ `user_identifier_field`) ;
+- câble `TouchIdUserInterface` sur l’entité ;
+- active Stimulus dans `assets/controllers.json` ;
+- ajoute `PUBLIC_ACCESS` pour `^/webauthn/login` ;
+- crée la table via `touch-id:install`.
 
-En mode non interactif (`composer require -n` / CI), `user_class` reste à `~` : à renseigner ensuite dans le YAML (puis relancer un `composer update` du package ou câbler à la main).
+Options utiles : `--user-class=App\\Entity\\User`, `--no-db`, `-n` (non interactif si `user_class` déjà dans le YAML).
 
-> **Endpoint Flex (optionnel)** — pour synchroniser aussi via Symfony Flex :
+> **Endpoint Flex (optionnel)** — copie aussi les YAML via Symfony Flex :
 > ```json
 > "extra": {
 >     "symfony": {
@@ -50,7 +51,7 @@ En mode non interactif (`composer require -n` / CI), `user_class` reste à `~` :
 >     }
 > }
 > ```
-> Sans cet endpoint, Flex affiche `auto-generated recipe` : ce n’est pas bloquant, le plugin Composer fait le travail.
+> Sans cet endpoint, Flex affiche `auto-generated recipe` : ce n’est pas bloquant, `touch-id:configure` suffit.
 
 ### 2. Bundle déjà enregistré
 
@@ -210,17 +211,11 @@ Ou remplacez les classes via les options Twig (`button_class`, `add_button_class
 
 | # | Étape | Auto ? |
 |---|---|---|
-| 1 | Endpoint Flex dans `composer.json` | — (une fois, optionnel) |
+| 1 | Endpoint Flex dans `composer.json` | — (optionnel) |
 | 2 | `composer require` | — |
-| 3 | YAML `user_class` / … | **Prompt Composer** |
-| 4 | Import routes | Oui (fichier copié) |
-| 4b | `trusted_proxies` (ngrok) | Oui — `config/packages/dev/` only |
-| 5 | `access_control` `/webauthn/login` | Non |
-| 6 | `TouchIdUserInterface` sur User | **Auto Composer** |
-| 7 | Table `web_authn_credential` | **Auto** (`touch-id:install`) |
-| 8 | `controllers.json` Stimulus | **Auto Composer** |
-| 9–10 | Includes Twig login + compte | Non |
-| 11 | CSS (embarqué + overridable) | Oui (via Stimulus) |
+| 3 | `php bin/console touch-id:configure` | **Oui** (YAML, User, Stimulus, access_control, DB) |
+| 4 | Includes Twig login + compte | Non |
+| 5 | CSS (embarqué + overridable) | Oui (via Stimulus) |
 
 ---
 

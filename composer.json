@@ -1,6 +1,6 @@
 {
     "name": "wpconsulting/touch-id-bundle",
-    "type": "composer-plugin",
+    "type": "symfony-bundle",
     "description": "Symfony bundle for WebAuthn platform passkeys (Face ID, Touch ID, Samsung fingerprint, Windows Hello).",
     "keywords": [
         "symfony",
@@ -12,6 +12,7 @@
         "symfony-ux",
         "flex"
     ],
+    "homepage": "https://github.com/williamPeninon/SymfonyTouchID",
     "license": "MIT",
     "authors": [
         {
@@ -19,9 +20,12 @@
             "homepage": "https://wpconsulting.fr"
         }
     ],
+    "support": {
+        "issues": "https://github.com/williamPeninon/SymfonyTouchID/issues",
+        "source": "https://github.com/williamPeninon/SymfonyTouchID"
+    },
     "require": {
         "php": ">=8.2",
-        "composer-plugin-api": "^2.2",
         "doctrine/doctrine-bundle": "^2.11|^3.0",
         "doctrine/orm": "^2.17|^3.0",
         "lbuchs/webauthn": "^2.2",
@@ -35,18 +39,28 @@
         "twig/twig": "^3.8"
     },
     "require-dev": {
-        "composer/composer": "^2.2"
+        "phpunit/phpunit": "^10.5|^11.5",
+        "symfony/yaml": "^6.4|^7.0"
     },
     "autoload": {
         "psr-4": {
             "WpConsulting\\TouchIdBundle\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "WpConsulting\\TouchIdBundle\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
     "extra": {
-        "class": "WpConsulting\\TouchIdBundle\\Composer\\Plugin",
-        "plugin-optional": false,
         "branch-alias": {
-            "dev-main": "1.5-dev"
+            "dev-main": "1.6-dev"
+        },
+        "symfony": {
+            "allow-contrib": true
         }
     },
     "minimum-stability": "stable"

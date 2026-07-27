@@ -59,13 +59,8 @@ final class TouchIdInstallCommand extends Command
 
         $io->success('Table web_authn_credential created.');
         $io->note([
-            'Also ensure:',
-            '1) config/packages/wp_consulting_touch_id.yaml (user_class)',
-            '2) config/routes/touch_id.yaml imports @TouchIdBundle/config/routes.yaml',
-            '3) security access_control PUBLIC_ACCESS for ^/webauthn/login',
-            '4) assets/controllers.json enables @wpconsulting/touch-id-bundle',
-            '5) User implements TouchIdUserInterface',
-            '6) php bin/console doctrine:migrations:diff && doctrine:migrations:migrate',
+            'Prefer: php bin/console touch-id:configure',
+            'Or ensure Twig includes @TouchId/touch_id/_login_button.html.twig + _manage.html.twig',
         ]);
 
         return Command::SUCCESS;
