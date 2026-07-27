@@ -30,7 +30,10 @@ composer require wpconsulting/touch-id-bundle
 
 - crée `config/packages/wp_consulting_touch_id.yaml` et `config/routes/touch_id.yaml` s’ils manquent ;
 - enregistre le bundle dans `config/bundles.php` si besoin ;
+- **demande interactivement** le FQCN de l’entité d’authentification (`user_class`) et le champ identifiant (`user_identifier_field`), avec détection depuis `security.yaml` / `src/` ;
 - affiche le checklist de wiring dans la console.
+
+En mode non interactif (`composer require -n` / CI), `user_class` reste à `~` : à renseigner ensuite dans le YAML.
 
 > **Endpoint Flex (optionnel)** — pour synchroniser aussi via Symfony Flex :
 > ```json
@@ -205,7 +208,7 @@ Ou remplacez les classes via les options Twig (`button_class`, `add_button_class
 |---|---|---|
 | 1 | Endpoint Flex dans `composer.json` | — (une fois) |
 | 2 | `composer require` | — |
-| 3 | YAML `user_class` / … | Fichier copié, **à remplir** |
+| 3 | YAML `user_class` / … | **Prompt Composer** (sinon à remplir) |
 | 4 | Import routes | Oui (fichier copié) |
 | 5 | `access_control` `/webauthn/login` | Non |
 | 6 | `TouchIdUserInterface` sur User | Non |

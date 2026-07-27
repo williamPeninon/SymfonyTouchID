@@ -1,7 +1,7 @@
 # config/packages/wp_consulting_touch_id.yaml
 wp_consulting_touch_id:
-    # REQUIRED — leave null until User implements TouchIdUserInterface
-    # (null keeps cache:clear / asset-map:compile working before wiring).
+    # Filled by the Composer plugin prompt when interactive;
+    # otherwise set to your User FQCN (e.g. App\Entity\User).
     user_class: ~
     # Must be the entity CLASS FQCN, not a namespace:
     # user_class: App\Entity\User
